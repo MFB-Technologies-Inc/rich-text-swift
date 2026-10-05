@@ -11,7 +11,7 @@
     extension UIKitEditorEngine {
         /// `EngineCore.normalizedIngest` for a document UIKit just edited.
         /// Text the edit put in with no block role takes the role of the block
-        /// where the edit started, as a paste does (GitHub issue #73). That is
+        /// where the edit started, as a paste does. That is
         /// how typing over a selection that spans a heading and a list keeps
         /// the heading. Text before an edit doesn't move, so the first roleless
         /// character's offset is where the edit started in the document as it

@@ -7,8 +7,8 @@
 import Foundation
 
 /// Hand-written so the saved format is a plain `"#rrggbb"` string, matching
-/// the HTML encoder, rather than whatever the stored properties are named
-/// (GitHub issue #82). `CodableFormatTests` pins this; change it only on
+/// the HTML encoder, rather than whatever the stored properties are named.
+/// `CodableFormatTests` pins this; change it only on
 /// purpose.
 extension RichTextColor {
     public init(from decoder: any Decoder) throws {

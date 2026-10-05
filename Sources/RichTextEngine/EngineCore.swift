@@ -61,7 +61,7 @@ enum EngineCore {
     }
 
     /// `text` with `style` on every block that has a character with no block
-    /// role (GitHub issue #73). UIKit can put text with no semantic attributes
+    /// role. UIKit can put text with no semantic attributes
     /// into storage: typing over a selection that empties a block resets the
     /// typing attributes before the character goes in.
     static func fillingMissingBlockStyle(_ text: AttributedString, with style: BlockStyle) -> AttributedString {

@@ -79,7 +79,7 @@
 
         /// Called by `insertNewline()`: a Return that opens an empty block
         /// with a pending block style (a new list item, say) leaves a state
-        /// the typing after it can't describe (GitHub issue #21).
+        /// the typing after it can't describe.
         func rememberPendingBlockStyleState(of result: EditResult) {
             if result.typingAttributes.blockStyle != nil {
                 rememberCaretCommandState(of: result)

@@ -66,7 +66,7 @@ struct BlockquoteHTMLTests {
     }
 
     @Test func multiParagraphBlockquoteKeepsTheQuoteRoleOnlyOnTheFirstBlock() {
-        // KNOWN LIMITATION (GitHub issue #20):
+        // KNOWN LIMITATION (GitHub issue #8):
         // the flat model holds one role per block and the decoder has no
         // quote-context stack, so a <blockquote> wrapping *multiple* blocks
         // only keeps the quote role on the first one — every subsequent

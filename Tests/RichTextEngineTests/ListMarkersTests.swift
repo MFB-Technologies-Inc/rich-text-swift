@@ -95,7 +95,7 @@ struct ListMarkersTests {
 
     @Test func anEmptyBlockBetweenItemsIsNumberedAsAnItem() {
         // An empty block can't carry a role, but one between two items of the
-        // same list is an empty item of it (GitHub issue #74), so the run
+        // same list is an empty item of it, so the run
         // counts through it rather than restarting.
         var doc = Sem.block("a", .listItem(.ordered, depth: 0))
         doc += AttributedString("\n\n")

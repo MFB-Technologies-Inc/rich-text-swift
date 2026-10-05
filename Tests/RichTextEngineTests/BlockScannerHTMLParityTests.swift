@@ -131,7 +131,7 @@ struct BlockScannerHTMLParityTests {
 
         while !match(segment, &index, closeTag) {
             // The placeholder `HTMLEncoder` opens for a level skipped by a
-            // depth jump (GitHub issue #49) is the only `<li>` it gives an
+            // depth jump is the only `<li>` it gives an
             // attribute.
             let isPlaceholderTag = match(segment, &index, #"<li style="display:block">"#)
             guard isPlaceholderTag || match(segment, &index, "<li>") else {

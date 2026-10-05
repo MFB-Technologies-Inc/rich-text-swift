@@ -10,7 +10,7 @@ import Testing
 
 /// A skip element (`<script>`, `<svg>`, `<head>`, …) with no end tag is
 /// ignored: its start tag is dropped and its content decodes as ordinary
-/// content, so it can't swallow the rest of the document (GitHub issue #52).
+/// content, so it can't swallow the rest of the document.
 struct HTMLUnclosedSkipTagTests {
     private func roundTrip(_ html: String) -> String {
         RichTextHTML.encode(RichTextHTML.decode(html))
@@ -61,7 +61,7 @@ struct HTMLUnclosedSkipTagTests {
     }
 
     /// `</head>` is optional in HTML, so a document that leaves it out must
-    /// keep its body (GitHub issue #65).
+    /// keep its body.
     @Test func headWithoutAnEndTagKeepsTheBody() {
         let html = "<html><head><title>T</title><style>p{}</style><body><p>hi</p></body></html>"
         #expect(roundTrip(html) == "<p>hi</p>")

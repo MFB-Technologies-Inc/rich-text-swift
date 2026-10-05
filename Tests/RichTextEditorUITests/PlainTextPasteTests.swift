@@ -14,13 +14,13 @@ import Testing
     import SwiftUI
     import UIKit
 
-    /// `pasteAsPlainText` addresses a rich-paste discrepancy (mitigated in PR #8).
+    /// `pasteAsPlainText` addresses a rich-paste discrepancy.
     /// A rich paste leaves the pasteboard's own fonts and colors in `textStorage`
     /// while the semantic read-back drops them, so what the user sees is not what
     /// gets saved. Consumers whose users paste from Word and Outlook can opt out
     /// of that entirely.
     ///
-    /// Everything here asserts on the **document** (M5 finding, GitHub issue #39:
+    /// Everything here asserts on the **document** (GitHub issue #25:
     /// SwiftUI accessibility labels are unreachable from a hosted `UIView` tree),
     /// plus — for the cases where the whole point is whether the view and the
     /// document agree — on the text view's own storage.
@@ -93,7 +93,7 @@ import Testing
 
         // MARK: - The defect the option mitigates
 
-        /// Characterizes the rich-paste discrepancy (mitigated in PR #8) so the
+        /// Characterizes the rich-paste discrepancy so the
         /// contrast below is real rather than asserted: a rich paste — which is `textStorage`
         /// taking the pasteboard's own attributed string — leaves the view showing 36pt red
         /// text that the saved document knows nothing about.
@@ -160,7 +160,7 @@ import Testing
         }
 
         /// Same rule with the caret in a heading: pasted lines take the CARET
-        /// BLOCK'S role (GitHub issue #17), not `.paragraph` — routing each line
+        /// BLOCK'S role (GitHub issue #5), not `.paragraph` — routing each line
         /// through `model.insertNewline()` for proper Return-policy continuation
         /// would make an N-line paste O(N²). This pins that documented, deliberate
         /// behavior for `.heading`, which the task's own motivating example
@@ -179,7 +179,7 @@ import Testing
         }
 
         /// Same rule again with the caret in a `.blockquote` — pinning the same
-        /// documented behavior (GitHub issue #17) for the newly added quote role.
+        /// documented behavior (GitHub issue #5) for the newly added quote role.
         @Test func aMultiLinePlainPasteInsideABlockquoteStaysInTheBlockquote() {
             let h = harness("<blockquote>one</blockquote>", pasteboardText: "\ntwo\nthree")
             h.textView.selectedRange = NSRange(location: 3, length: 0)
@@ -196,7 +196,7 @@ import Testing
 
         /// Windows line endings are what a Word or Outlook paste actually
         /// carries. They must become block separators, not a stray `\r` inside a
-        /// block (GitHub issue #12).
+        /// block.
         @Test func windowsLineEndingsBecomeBlockSeparators() {
             let h = harness("<p></p>", pasteboardText: "one\r\ntwo\rthree")
             h.textView.selectedRange = NSRange(location: 0, length: 0)

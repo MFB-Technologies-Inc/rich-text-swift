@@ -8,7 +8,7 @@ import Foundation
 @testable import RichTextCore
 import Testing
 
-/// Pins the exact JSON of the Codable format (GitHub issue #82). Apps persist
+/// Pins the exact JSON of the Codable format. Apps persist
 /// this output, so any change here breaks their saved documents: a failure in
 /// this file means the format changed, and the fix is almost never to update
 /// the expected string.

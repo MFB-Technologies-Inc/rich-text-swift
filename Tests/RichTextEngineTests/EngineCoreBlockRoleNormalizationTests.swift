@@ -11,7 +11,7 @@ import Testing
 
 /// Covers `EngineCore.fillingMissingBlockStyle(_:with:)`: text with no block
 /// role gets one, so no document the engine holds carries a `nil` role on
-/// its characters (GitHub issue #73). An empty block has no characters to
+/// its characters. An empty block has no characters to
 /// hold a role, so it stays as it is.
 struct EngineCoreBlockRoleNormalizationTests {
     private func block(_ text: String, _ style: BlockStyle?) -> AttributedString {
