@@ -105,7 +105,7 @@ struct ListMarkersTests {
 
     // MARK: - Over effective blocks (the pending-role rendering fix)
 
-    /// The bug this milestone fixes: pressing Return at the end of "1." must
+    /// The bug these tests guard against: pressing Return at the end of "1." must
     /// show "2." on the new, still-empty line immediately — not only once a
     /// character exists to carry the role. `effectiveBlocks` substitutes the
     /// pending role onto the caret's empty block, and because `markers(for:)`
@@ -168,13 +168,13 @@ struct ListMarkersTests {
         // One block spanning two visual lines (a wrapped item). Only the
         // first line's start (0) is the block's own start; the wrapped
         // continuation's start (5) falls mid-block and matches nothing —
-        // this is the M4 regression (bullet drawn on line 2) to protect.
+        // this guards against a bullet being drawn on line 2.
         let blocks = [DocumentBlock(location: 0, length: 20, style: .listItem(.unordered, depth: 0))]
         #expect(ListMarkers.markers(forLineStartOffsets: [0, 5], blocks: blocks) == [0: "•"])
     }
 
     @Test func aFragmentsSecondLineBeginningTheTrailingEmptyBlockGetsItsOwnMarker() {
-        // The trailing case this milestone fixes: one fragment holding two
+        // The trailing case: one fragment holding two
         // lines because TextKit didn't give the document-final empty block
         // a fragment of its own. The second line's start (10) equals that
         // empty block's own start, so it gets its own marker too.

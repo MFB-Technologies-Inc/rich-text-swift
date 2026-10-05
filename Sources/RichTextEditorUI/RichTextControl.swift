@@ -8,7 +8,7 @@ import Foundation
 import RichTextCore
 import RichTextEngine
 
-/// A heading level the toolbar can offer. v1 ships H1–H3 (dev-plan §9).
+/// A heading level the toolbar can offer. v1 ships H1–H3.
 public enum HeadingLevel: Int, Hashable, Sendable, CaseIterable {
     case h1 = 1
     case h2 = 2
@@ -17,8 +17,7 @@ public enum HeadingLevel: Int, Hashable, Sendable, CaseIterable {
 
 /// A built-in toolbar control.
 ///
-/// The consumer picks and orders these; the package renders them
-/// (dev-plan Decision #6):
+/// The consumer picks and orders these; the package renders them:
 ///
 /// ```swift
 /// RichTextEditor(text: $doc)
@@ -37,14 +36,14 @@ public enum RichTextControl: Hashable, Sendable {
 
 /// The mapping below is deliberately **internal**: its signatures name
 /// `FormatCommand`/`FormatState`, and exposing those publicly would open the
-/// command/state seam that dev-plan Decision #6 keeps closed in v1. Promoting
+/// command/state seam that v1 deliberately keeps closed. Promoting
 /// this to public is the additive "bring your own toolbar" work.
 extension RichTextControl {
     /// The command this control sends when tapped.
     ///
     /// `nil` for `.textColor` alone: there is no fixed command to send because
     /// the color comes from the system picker's own binding, which issues
-    /// `.setTextColor(_:)` directly as the user picks (M5 decision D5); picking
+    /// `.setTextColor(_:)` directly as the user picks; picking
     /// black is how the user removes the color, since the picker cannot bind
     /// an optional.
     var command: FormatCommand? {
@@ -62,7 +61,7 @@ extension RichTextControl {
 
     /// Whether this control renders as active for the given selection.
     ///
-    /// `.mixed` reads as inactive alongside `.off` (M5 decision D6): the engine
+    /// `.mixed` reads as inactive alongside `.off`: the engine
     /// turns a mixed selection fully *on* when toggled, so an inactive button
     /// correctly predicts its own tap. A `nil` `blockStyle` — a selection
     /// spanning differing block roles — is likewise inactive.
@@ -104,7 +103,7 @@ extension RichTextControl {
         case .unorderedList: "list.bullet"
         case .orderedList: "list.number"
         // SF Symbols has no clean H1/H2/H3 equivalent, so headings are drawn
-        // as text (M5 decision D4).
+        // as text.
         case .heading: nil
         }
     }

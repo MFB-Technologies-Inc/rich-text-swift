@@ -47,7 +47,7 @@ struct RichTextControlTests {
         state.bold = .off
         #expect(RichTextControl.bold.isActive(in: state) == false)
 
-        // Mixed reads as inactive (M5 decision D6): tapping turns it fully on,
+        // Mixed reads as inactive: tapping turns it fully on,
         // so an inactive button predicts its own tap.
         state.bold = .mixed
         #expect(RichTextControl.bold.isActive(in: state) == false)

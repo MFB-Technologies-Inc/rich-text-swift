@@ -12,7 +12,7 @@ import Testing
     @testable import RichTextEngine
     import UIKit
 
-    /// The in-place rendering path (M4 decision D6). Simulator-only: `swift test`
+    /// The in-place rendering path. Simulator-only: `swift test`
     /// on macOS never compiles the adapter.
     @MainActor
     struct InPlaceRenderingTests {
@@ -37,7 +37,7 @@ import Testing
         }
 
         @Test func aFormattingCommandDoesNotClearAnExistingUndoStack() {
-            // NOT proof of D6's undo-coalescing rationale: measured identical
+            // NOT proof of the in-place path's undo-coalescing rationale: measured identical
             // (`canUndo == true` both before and after) under the old
             // whole-`attributedText`-reassignment implementation too, because
             // `textView.attributedText = …` bypasses `shouldChangeTextIn:` (the

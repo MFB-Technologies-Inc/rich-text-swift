@@ -19,20 +19,19 @@
     /// ```
     ///
     /// HTML is not the currency here: convert at your save/load boundary with
-    /// `RichTextHTML.encode(_:)` / `RichTextHTML.decode(_:)` (dev-plan Decision #7),
+    /// `RichTextHTML.encode(_:)` / `RichTextHTML.decode(_:)`,
     /// so serialization cost is never paid on the keystroke path.
     public struct RichTextEditor: View {
         @Binding private var text: AttributedString
         /// `.environment(_:)` only scopes a value to the view it's applied to
-        /// and *that view's descendants*. M5's intended usage —
+        /// and *that view's descendants*. The intended toolbar usage —
         /// `RichTextEditor(text: $doc).richTextToolbar([...])` — puts the
         /// toolbar modifier *above* this view in the hierarchy, so this type
         /// cannot push a model down to it; only a wrapper the toolbar modifier
         /// creates and injects downward, wrapping `RichTextEditor`, can. So this
         /// view instead reads an optional model from the environment (the one
         /// such a wrapper will supply) and falls back to owning its own when
-        /// nothing injected one (the plain `RichTextEditor(text: $doc)` case,
-        /// M4 decision D3).
+        /// nothing injected one (the plain `RichTextEditor(text: $doc)` case).
         @Environment(RichTextEditorModel.self) private var injectedModel: RichTextEditorModel?
         @State private var ownModel = RichTextEditorModel()
         private var model: RichTextEditorModel {

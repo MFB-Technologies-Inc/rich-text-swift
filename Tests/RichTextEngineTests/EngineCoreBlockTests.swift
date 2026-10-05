@@ -115,7 +115,7 @@ struct EngineCoreBlockTests {
 
     @Test func blockStyleOnAnEmptyBlockBecomesAPendingTypingAttribute() {
         // The Foundation zero-length limitation: nothing can carry the marker
-        // yet, so it is held in typing attributes (M3 decision D13).
+        // yet, so it is held in typing attributes.
         let result = apply(.toggleHeading(1), AttributedString(""), .caret(at: 0))
         #expect(result.text.characters.isEmpty)
         #expect(result.typingAttributes.blockStyle == .heading(1))
@@ -160,7 +160,7 @@ struct EngineCoreBlockTests {
     }
 
     @Test func styledBlocksSerializeThroughTheEncoder() {
-        // The engine's writes must be exactly what the M2 encoder reads.
+        // The engine's writes must be exactly what the encoder reads.
         let doc = Sem.doc(Sem.block("Title"), Sem.block("one"), Sem.block("two"))
         var result = apply(.toggleHeading(1), doc, .caret(at: 0))
         result = apply(.toggleList(.unordered), result.text, TextSelection(location: 6, length: 7))

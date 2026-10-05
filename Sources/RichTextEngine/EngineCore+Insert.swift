@@ -52,7 +52,7 @@ extension EngineCore {
         let tailBlock = BlockScanner.blocks(of: text, intersecting: .caret(at: upper)).first ?? headBlock
         let keepsHead = lower > headBlock.location
         let keepsTail = upper < tailBlock.location + tailBlock.length
-        // An empty block's role lives in the pending typing attribute (D13).
+        // An empty block's role lives in the pending typing attribute.
         let hostStyle = (headBlock.isEmpty ? typingAttributes.blockStyle : nil) ?? headBlock.style
 
         result.replaceSubrange(insertionRange, with: fragment)

@@ -10,11 +10,11 @@ import RichTextCore
 
 /// A UIKit-free `EditorEngine` backed by nothing but a stored AttributedString.
 /// Exercises the seam exactly as `UIKitEditorEngine` does, minus the text view —
-/// which is the point of the seam (M3 decision D1/D2).
+/// which is the point of the seam.
 ///
 /// Mirrors the real engine's state machine: the `selection` setter re-derives
 /// via `EngineCore.typingAttributes(movingTo:in:previous:previouslyAt:)`,
-/// which lets a *pending* block style (D13) survive being re-collapsed onto
+/// which lets a *pending* block style survive being re-collapsed onto
 /// the exact same empty block, while still dropping it the moment the caret
 /// moves to a different (even if also empty) block. `lastAttributesSelection`
 /// is the bookkeeping that makes that comparison possible — it tracks the
@@ -37,7 +37,7 @@ import RichTextCore
 /// selection/storage *behind this engine's back* — exactly what a real
 /// `UITextView` does on every arrow key, tap-to-place, keystroke, or paste.
 /// Production's equivalents are the `UITextViewDelegate` callbacks
-/// (`textViewDidChangeSelection` / `textViewDidChange`, wired in M4), which is
+/// (`textViewDidChangeSelection` / `textViewDidChange`), which is
 /// why they exist as separate affordances rather than routing through
 /// `selection`/`text`: those setters *are* this double's synchronous
 /// equivalent of "the app called `EditorEngine.selection = ...`", which
@@ -163,7 +163,7 @@ final class InMemoryEditorEngine: EditorEngine {
     /// Test-only affordance standing in for the text view moving its own
     /// caret behind this engine's back — arrow keys, tap-to-place. The
     /// production equivalent is `UITextViewDelegate.textViewDidChangeSelection`,
-    /// wired (M4) to call `synchronizeSelection()`. Moves the selection only;
+    /// wired to call `synchronizeSelection()`. Moves the selection only;
     /// deliberately does **not** refresh `typingAttributes` or
     /// `lastAttributesSelection` the way the `selection` setter above does,
     /// so a test can observe `typingAttributes` go stale and then confirm
@@ -174,7 +174,7 @@ final class InMemoryEditorEngine: EditorEngine {
 
     /// Test-only affordance standing in for the text view mutating its own
     /// storage behind this engine's back — typing, paste. The production
-    /// equivalent is `UITextViewDelegate.textViewDidChange`, wired (M4) to
+    /// equivalent is `UITextViewDelegate.textViewDidChange`, wired to
     /// call `synchronizeFromTextView()`. Replaces the stored document only;
     /// deliberately does **not** refresh `typingAttributes` the way the
     /// `text` setter above does, so a test can observe `typingAttributes` go

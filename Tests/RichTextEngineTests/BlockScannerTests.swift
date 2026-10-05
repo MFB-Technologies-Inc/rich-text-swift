@@ -76,7 +76,7 @@ struct BlockScannerTests {
     @Test func selectionThroughTheNewlineDoesNotIncludeTheNextBlock() {
         let doc = Sem.doc(Sem.block("abc"), Sem.block("def"))
         // "abc\n" selected — the caret sits at the start of block 2 but no
-        // character of it is selected (M3 decision D11).
+        // character of it is selected.
         #expect(BlockScanner.blocks(of: doc, intersecting: TextSelection(location: 0, length: 4))
             .map(\.range) == [0 ..< 3])
         // One character into block 2 — both blocks.

@@ -8,7 +8,7 @@ import Foundation
 import RichTextCore
 
 /// Whether an attribute holds across the whole selection, nowhere in it, or
-/// only part of it. Drives toolbar active/inactive/indeterminate state (M5).
+/// only part of it. Drives toolbar active/inactive/indeterminate state.
 public enum TriState: Hashable, Sendable {
     case on
     case off
@@ -25,7 +25,7 @@ public enum InlineFlag: Hashable, Sendable, CaseIterable {
 }
 
 /// The formatting of the current selection — the "state" half of the internal
-/// command/state seam (dev-plan Decision #6).
+/// command/state seam.
 public struct FormatState: Hashable, Sendable {
     public var bold: TriState
     public var italic: TriState

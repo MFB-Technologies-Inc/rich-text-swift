@@ -373,8 +373,8 @@ extension HTMLDecoder {
                 // carry it: Foundation's AttributedString can't attach an
                 // attribute to a zero-length range, so an empty styled block
                 // (e.g. `<h1></h1>`) round-trips as `.paragraph`. Known v1
-                // limitation; revisit in M3 (may need a zero-width sentinel in
-                // the engine). See also HTMLEncoder.splitBlocks(_:).
+                // limitation, tracked in GitHub issue #4 (may need a zero-width sentinel
+                // in the engine). See also HTMLEncoder.splitBlocks(_:).
                 if blockStart < start {
                     result[blockStart ..< start].blockStyle = block.style
                 }

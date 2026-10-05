@@ -11,7 +11,7 @@ import Foundation
 /// `AttributedStringKey`) so the runs can be archived later if needed.
 ///
 /// The `blockStyle` marker is invisible/paragraph-level and is the source of
-/// truth for block role (dev-plan §6a). The inline flags map 1:1 to the
+/// truth for block role. The inline flags map 1:1 to the
 /// simple-HTML inline elements the serializer emits.
 public enum RichTextAttributes {
     public enum BlockStyleKey: CodableAttributedStringKey {

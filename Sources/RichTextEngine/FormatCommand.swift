@@ -7,8 +7,8 @@
 import Foundation
 import RichTextCore
 
-/// A formatting intent — the "command" half of the internal command/state seam
-/// (dev-plan Decision #6). Covers exactly the v1 toolbar.
+/// A formatting intent — the "command" half of the internal command/state seam.
+/// Covers exactly the v1 toolbar.
 ///
 /// Kept module-internal in v1 (the module is not a package product); promoting
 /// it to a shipped public API is the additive "bring your own toolbar" work.
@@ -26,6 +26,6 @@ public enum FormatCommand: Hashable, Sendable {
     case toggleHeading(Int)
     /// Toolbar UL/OL: makes list items, or reverts to `.paragraph` if every
     /// intersecting block is already a list of that kind. Existing nesting
-    /// depth is preserved (M3 decision D12).
+    /// depth is preserved.
     case toggleList(ListKind)
 }

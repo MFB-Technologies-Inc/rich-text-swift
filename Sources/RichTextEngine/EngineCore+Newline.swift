@@ -8,7 +8,7 @@ import Foundation
 import RichTextCore
 
 extension EngineCore {
-    /// The result of pressing Return (M4 decision D5). Pure, so the policy is
+    /// The result of pressing Return. Pure, so the policy is
     /// covered by `swift test` on macOS and the platform adapter only has to
     /// intercept the keystroke.
     ///
@@ -30,7 +30,7 @@ extension EngineCore {
         let caretBlock = BlockScanner.blocks(of: text, intersecting: selection).first
             ?? DocumentBlock(location: 0, length: 0, style: .paragraph)
         // An empty block's role lives in the pending typing attribute, since
-        // Foundation cannot attribute zero-length content (M3 decision D13).
+        // Foundation cannot attribute zero-length content.
         let currentStyle = (caretBlock.isEmpty ? typingAttributes.blockStyle : nil) ?? caretBlock.style
 
         // Return on an empty list item leaves the list rather than adding an

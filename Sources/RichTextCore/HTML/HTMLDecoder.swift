@@ -6,8 +6,8 @@
 
 import Foundation
 
-/// Builds a semantic `AttributedString` (block markers + inline attributes, as
-/// consumed by M1) from a tolerant token stream produced by `HTMLTokenizer`.
+/// Builds a semantic `AttributedString` (block markers + inline attributes) from a
+/// tolerant token stream produced by `HTMLTokenizer`.
 ///
 /// The decoder is deliberately forgiving: accepted tag variants normalize to
 /// canonical attributes, unknown tags are unwrapped (their text is kept, their

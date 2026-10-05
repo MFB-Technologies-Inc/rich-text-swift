@@ -86,10 +86,10 @@ struct SemanticNSBridgeTests {
         #expect(RichTextHTML.encode(decoded) == "<p>hi</p>")
     }
 
-    // MARK: - Pending-role rendering safety (rendering counterpart of D13)
+    // MARK: - Pending-role rendering safety (rendering counterpart of the pending block style)
 
     /// What a real `UITextView` would produce while a pending list-item role
-    /// (D13) is active: `pushTypingAttributes()` stamps `blockStyle` onto the
+    /// is active: `pushTypingAttributes()` stamps `blockStyle` onto the
     /// text view's typing attributes, and UIKit applies those to every
     /// inserted character — including a bare "\n" that forms an empty
     /// paragraph entirely on its own. This proves `attributedString(from:)`

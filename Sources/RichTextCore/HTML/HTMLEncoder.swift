@@ -6,8 +6,7 @@
 
 import Foundation
 
-/// Encodes a semantic `AttributedString` (block markers + inline attributes,
-/// as produced by M1) into the canonical simple-HTML output.
+/// Encodes a semantic `AttributedString` (block markers + inline attributes) into the canonical simple-HTML output.
 enum HTMLEncoder {
     static func encode(_ attr: AttributedString) -> String {
         var lists = ListEmitter()

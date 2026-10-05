@@ -19,7 +19,7 @@ struct RenderedStyle: Hashable, Sendable {
     var foregroundColor: RichTextColor?
     /// How many indent steps the block sits in: `depth + 1` for a list item,
     /// 1 for a blockquote, 0 otherwise. The adapter maps a non-zero value to
-    /// paragraph indentation. (Bullet/number glyph drawing is deferred to M4.)
+    /// paragraph indentation. (Bullet and number glyphs are drawn separately.)
     var indentLevel: Int
     /// `indentLevel` resolved to points — via `Theme.listIndent` for a list
     /// item, `Theme.blockquoteIndent` for a quote — so the adapter needs no
@@ -49,7 +49,7 @@ struct RenderedStyle: Hashable, Sendable {
 
 /// Combines the semantic block role (via `Theme`) with inline attributes into a
 /// concrete appearance. Rendering only — the marker remains the source of truth,
-/// and nothing here is ever read back as structure (dev-plan §6a).
+/// and nothing here is ever read back as structure.
 enum StyleResolver {
     static func resolve(block: BlockStyle, typingAttributes: TypingAttributes, theme: Theme) -> RenderedStyle {
         let blockAttributes = theme.attributes(for: block)

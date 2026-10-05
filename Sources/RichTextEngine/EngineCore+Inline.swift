@@ -70,7 +70,7 @@ extension EngineCore {
             typing.textColor = normalized
         }
         // A pending block style only applies to an empty block; formatting real
-        // characters means it is stale (M3 decision D13).
+        // characters means it is stale.
         typing.blockStyle = nil
         return EditResult(text: result, selection: selection, typingAttributes: typing)
     }

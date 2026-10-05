@@ -86,7 +86,7 @@
 
     /// Owns the binding write-back and the text view's delegate contract.
     ///
-    /// The wiring is the one M3's `UIKitEditorEngine` documents, and both hooks are
+    /// The wiring is the one `UIKitEditorEngine` documents, and both hooks are
     /// required: `textViewDidChangeSelection` -> `synchronizeSelection()` (cheap,
     /// keeps a pending block style correct on every caret move) and
     /// `textViewDidChange` -> `synchronizeFromTextView()` (pulls the document back
@@ -111,7 +111,7 @@
         private var writeBackRevision = 0
         private static let maxWriteBackAttempts = 3
         /// SwiftUI can hand this coordinator a differently-scoped `model` across
-        /// updates (e.g. M5's injected model swapping in). Settable only through
+        /// updates (e.g. the toolbar modifier's injected model swapping in). Settable only through
         /// `setModel(_:)` below — never assigned directly — because a swap has
         /// to re-attach the engine and re-wire `onDocumentChange`, not just
         /// re-point the reference.
@@ -120,7 +120,7 @@
 
         /// The last document published to the binding. SwiftUI hands it straight
         /// back on the next turn via `updateUIView`; pushing it into the engine
-        /// would be a pure echo (M4 decision D4). The engine has its own
+        /// would be a pure echo. The engine has its own
         /// idempotence guard, but suppressing here avoids the whole round trip.
         private var lastPublished: AttributedString?
 
@@ -173,7 +173,7 @@
 
         /// Commands (`apply(_:)`) and `insertNewline()` mutate the engine
         /// directly, so `UITextViewDelegate.textViewDidChange` never fires for
-        /// them and the result never reaches the binding (M4 fix wave).
+        /// them and the result never reaches the binding.
         /// `[weak self]`: the model is held by the view, the coordinator by
         /// SwiftUI — neither owns the other, but capturing strongly here would
         /// still be a cycle via the closure the model retains.
@@ -288,8 +288,8 @@
             shouldChangeTextIn range: NSRange,
             replacementText replacement: String
         ) -> Bool {
-            // Only Return is intercepted: the engine owns the block-role policy
-            // (M4 decision D5), which a plain newline insertion would silently drop.
+            // Only Return is intercepted: the engine owns the block-role policy,
+            // which a plain newline insertion would silently drop.
             guard replacement == "\n", let engine else { return true }
             // During IME composition (CJK), Return is the commit key, not a
             // newline. `UIKitEditorEngine.render(restoring:)` warns that a

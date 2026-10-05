@@ -139,7 +139,7 @@ struct EngineCoreInlineTests {
         #expect(result.typingAttributes.textColor == red)
     }
 
-    // MARK: - Black is the absence of a text color (M4/M5 decision)
+    // MARK: - Black is the absence of a text color
 
     //
     // Black is normalized to `nil` right here, at the command layer, so the
@@ -204,7 +204,7 @@ struct EngineCoreInlineTests {
     // is empty — not just "a block boundary", but zero characters of actual
     // content between two "\n"s. `formatState`'s newline-skipping branch
     // (`slice.characters.allSatisfy { $0 == "\n" }`) is the most fragile
-    // logic in this milestone; these tests stress it with a selection that
+    // logic here; these tests stress it with a selection that
     // spans the whole document, empty block included, and check it behaves
     // exactly as the non-empty two-block case above (`togglingAMixedSelectionTurnsTheWholeThingOn`,
     // `crossBlockColorSurvivesARoundTrip`) rather than being thrown off by

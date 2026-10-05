@@ -24,7 +24,7 @@
 
     /// `EditorEngine` bound to a `UITextView` (TextKit 2 by default on iOS 17).
     ///
-    /// Thin by construction (M3 decision D1): it owns the semantic document, hands
+    /// Thin by construction: it owns the semantic document, hands
     /// every decision to `EngineCore`, and only translates — semantic text into
     /// `textStorage` via `UIKitRendering`, `NSRange` selections into
     /// `TextSelection` (both are UTF-16, so this is a straight copy), and
@@ -32,7 +32,7 @@
     @MainActor
     public final class UIKitEditorEngine: EditorEngine {
         let textView: UITextView
-        /// Read "as if injected" — v1 only ever passes `.default` (Decision #9).
+        /// Read "as if injected" — v1 only ever passes `.default`.
         private let theme: Theme
         var semanticText: AttributedString
         public internal(set) var typingAttributes: TypingAttributes
@@ -40,7 +40,7 @@
         /// `refreshTypingAttributes()` can tell `EngineCore` whether the caret is
         /// still in the same (possibly still-empty) block or has moved to a
         /// different one — the only thing that legitimately lets a pending block
-        /// style (D13) survive a selection change.
+        /// style survive a selection change.
         var lastAttributesSelection: TextSelection
         /// Guards against re-entering the engine from the text view's own
         /// delegate callbacks while `render(restoring:)` is in the middle of
@@ -67,7 +67,7 @@
         var caretCommandStates: [UndoSnapshot] = []
         /// Draws list bullets/numbers in the indent gutter. Markers are computed
         /// from the semantic blocks and drawn at layout time — never stored in the
-        /// document (M4 decision D7).
+        /// document.
         ///
         /// Not `private`: `@testable import` needs to reach `marker(atUTF16Offset:)`
         /// directly to prove markers stay correct after an out-of-band edit (Fix 1)
@@ -144,7 +144,7 @@
         public var text: AttributedString {
             get { semanticText }
             set {
-                // The representable's update loop (M4) is: delegate ->
+                // The representable's update loop is: delegate ->
                 // `synchronizeFromTextView()` -> view model -> `Binding` ->
                 // `updateUIView` -> `engine.text = binding.wrappedValue`. That
                 // fires on every keystroke and hands back the very document this
@@ -178,7 +178,7 @@
                 semanticText = normalizedValue
                 caretCommandStates = []
                 // The incoming document is authoritative. A pending block style
-                // (D13) captured against the *old* document cannot be trusted to
+                // captured against the *old* document cannot be trusted to
                 // still describe the same empty block here — this is exactly
                 // the caller-mutated-the-document case
                 // `EngineCore.typingAttributes(movingTo:...)` warns about — so
@@ -247,15 +247,15 @@
             pushTypingAttributes()
         }
 
-        // MARK: - Text view integration (driven by M4's delegate)
+        // MARK: - Text view integration (driven by the text view's delegate)
 
         //
-        // Wiring contract the next milestone's `UITextViewDelegate` must follow —
+        // Wiring contract the `UITextViewDelegate` must follow —
         // both hooks are required, and neither substitutes for the other:
         //
         // - `textViewDidChangeSelection` -> `synchronizeSelection()`. The caret
         //   can move without any text changing (arrow keys, tap-to-place), and a
-        //   pending block style (D13) is only kept correct if typing attributes
+        //   pending block style is only kept correct if typing attributes
         //   are re-derived on *every* such move. `synchronizeSelection()` is
         //   cheap enough to call on every one of them because it never touches
         //   `NSAttributedString` — it only re-derives typing attributes from the
@@ -318,7 +318,7 @@
             // selection for both `movingTo:` and `previouslyAt:`: a pending
             // block style then survives only if the caret's block is still the
             // same still-empty block in the document as it now stands, which is
-            // the intended rule (D13) rather than a comparison against stale
+            // the intended rule rather than a comparison against stale
             // pre-edit geometry.
             let currentSelection = selection
             typingAttributes = EngineCore.typingAttributes(
@@ -418,7 +418,7 @@
         /// Rewrites the text view's storage from the semantic document and restores
         /// the given selection (clamped to the new length) in one step.
         ///
-        /// Two paths (M4 decision D6). When the characters are unchanged — true of
+        /// Two paths. When the characters are unchanged — true of
         /// *every* formatting command, which only moves attributes — this re-applies
         /// attributes in place inside `beginEditing()`/`endEditing()` instead of
         /// reassigning `attributedText` wholesale. The demonstrable benefit is IME
@@ -443,7 +443,7 @@
             // after this render (every call site sets it before calling
             // `render`), and `selection` is the caret it's restoring to — exactly
             // the pair `effectiveBlocks` needs to know whether a pending block
-            // style (D13) applies to the block the caret is about to sit in.
+            // style applies to the block the caret is about to sit in.
             listMarkers.update(
                 for: semanticText,
                 theme: theme,
@@ -465,7 +465,7 @@
         }
 
         /// Re-derives typing attributes from the document, delegating the
-        /// pending-block-style-survival rule (D13) entirely to `EngineCore`: a
+        /// pending-block-style-survival rule entirely to `EngineCore`: a
         /// pending style carries forward only while the caret stays within the
         /// same still-empty block it was set in, never across a move to a
         /// different (also empty) block.

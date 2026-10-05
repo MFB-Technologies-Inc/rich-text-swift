@@ -7,8 +7,8 @@
 import Foundation
 import RichTextCore
 
-/// The visible marker for each list block — **computed, never stored**
-/// (M4 decision D7). Putting marker text in the document would corrupt the
+/// The visible marker for each list block — **computed, never stored**.
+/// Putting marker text in the document would corrupt the
 /// model, the selection offsets, and the HTML, so the layout pass draws what
 /// this returns and the document stays clean.
 enum ListMarkers {

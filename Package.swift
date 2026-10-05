@@ -30,7 +30,7 @@ let package = Package(
     platforms: [
         .iOS(.v17),
         // Local-only: lets the platform-agnostic core build & run tests on the dev Mac.
-        // NOT a macOS product commitment — that is the post-v1 "B" port. Pinned to
+        // NOT a macOS product commitment; a macOS port is future work. Pinned to
         // v14 (not v13) because RichTextEditorUI's view model uses Observation,
         // which the Observation framework requires.
         .macOS(.v14),

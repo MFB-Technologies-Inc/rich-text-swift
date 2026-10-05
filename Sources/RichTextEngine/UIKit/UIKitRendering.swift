@@ -13,7 +13,7 @@
     ///
     /// Deliberately mechanical: every *decision* (what a heading looks like, what a
     /// command does) is made in the UIKit-free core, so the only thing that can go
-    /// wrong here is translation, which M4's integration exercises directly.
+    /// wrong here is translation, which the UIKit integration tests exercise directly.
     /// The semantic custom attributes are copied into the NSAttributedString under
     /// their `CodableAttributedStringKey.name`s so they survive typing, cut/paste,
     /// and are readable on the way back out.
@@ -36,8 +36,8 @@
 
             // `BlockScanner.effectiveBlocks(of:selection:pendingBlockStyle:)` is
             // the tested, authoritative source for each block's role, including
-            // the rendering-only substitution of a pending block style (M3
-            // decision D13) onto the caret's own empty block — never infer a
+            // the rendering-only substitution of a pending block style onto the
+            // caret's own empty block — never infer a
             // role from a run's own `blockStyle` attribute here. Measured: the
             // write path (`SemanticNSBridge.nsAttributedString`) emits a lone
             // "\n" run with an *entirely empty* attribute dictionary whenever a
@@ -118,7 +118,7 @@
             attributes[.font] = font
             // `UIColor.label` is a platform default for when the theme expresses
             // no foreground color (v1's `Theme` has no "default text color"
-            // concept) — adding that to `Theme` is deferred (post-v1/M4 backlog).
+            // concept) — adding that to `Theme` is deferred past v1.
             attributes[.foregroundColor] = style.foregroundColor.map(uiColor(_:)) ?? UIColor.label
             // `.single` is a platform default line style; `Theme` has no concept
             // of underline/strikethrough style (thick, double, color, etc.) to
@@ -143,7 +143,7 @@
 
         /// Reads the semantic document back out of storage, dropping every
         /// rendering attribute. Font size is never consulted — the marker is the
-        /// source of truth (dev-plan §6a). Delegates to `SemanticNSBridge` so
+        /// source of truth. Delegates to `SemanticNSBridge` so
         /// there is exactly one implementation of the semantic mapping.
         static func semanticAttributedString(from storage: NSAttributedString) -> AttributedString {
             SemanticNSBridge.attributedString(from: storage)

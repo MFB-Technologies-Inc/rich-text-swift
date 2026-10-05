@@ -9,9 +9,8 @@ import Observation
 import RichTextCore
 import RichTextEngine
 
-/// The ViewModel half of the MVVM split (dev-plan Decision #6, CLAUDE.md
-/// invariant 5): every formatting action in the UI flows through here, never
-/// by poking the text view directly. The declarative toolbar (M5) reads
+/// The ViewModel half of the MVVM split: every formatting action in the UI flows through here, never
+/// by poking the text view directly. The declarative toolbar reads
 /// `formatState` and calls `apply(_:)`, which is exactly the seam that makes a
 /// public bring-your-own-toolbar API an additive change later.
 ///
@@ -47,7 +46,7 @@ final class RichTextEditorModel {
 
     /// Fired at the end of a UI-originated mutation (`apply(_:)`,
     /// `insertNewline()`) so the coordinator can publish the resulting
-    /// document to the consumer's `Binding` (M4 fix wave: commands never
+    /// document to the consumer's `Binding` (without it, commands never
     /// called `textViewDidChange`, so a command applied through the toolbar
     /// silently never reached the binding). Deliberately NOT invoked from
     /// `setText(_:)`, which is itself the binding's write *into* the engine —
@@ -149,11 +148,11 @@ final class RichTextEditorModel {
     /// calls `synchronizeSelection()` before `setText(_:)` has even returned.
     /// So "reached from the update phase" is not limited to the
     /// representable's own two call sites; any path that can be reentered
-    /// from inside one of them needs the same deferral. Through M4 all of
-    /// this was harmless because nothing observed `formatState`; M5's
+    /// from inside one of them needs the same deferral. Before the toolbar
+    /// existed this was harmless because nothing observed `formatState`; the
     /// toolbar observes it, which turns an undeferred call into the
     /// "Modifying state during view update" pattern — a diagnostic at best,
-    /// an update loop at worst (M5 decision D8).
+    /// an update loop at worst.
     ///
     /// User-driven mutations (`apply(_:)`, `insertNewline()`) deliberately
     /// keep publishing synchronously: they do not run in the update phase, and

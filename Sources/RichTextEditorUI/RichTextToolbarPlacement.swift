@@ -13,6 +13,6 @@ public enum RichTextToolbarPlacement: Hashable, Sendable {
 
     /// Below the editor. SwiftUI's keyboard safe area lifts it above the
     /// keyboard while editing, so it behaves much like an accessory view
-    /// without any UIKit hosting (M5 decision D2). The default.
+    /// without any UIKit hosting. The default.
     case bottom
 }
