@@ -75,7 +75,7 @@ struct EditorEngineTests {
         #expect(RichTextHTML.encode(engine.text) == "<ol><li><b>one</b></li><li><b>two</b></li></ol>")
     }
 
-    // MARK: - Empty-block pending block style (M3 decision D13), through the seam
+    // MARK: - Empty-block pending block style, through the seam
 
     /// Toggling a heading with the caret in an empty block cannot mark any
     /// character (there are none), so the pending role lives only in
@@ -299,7 +299,7 @@ struct EditorEngineTests {
         #expect(engine.typingAttributes.blockStyle == .heading(2))
 
         // An external mutation that fills in the caret's block — it is no
-        // longer empty — must drop the pending style, since D13's pending
+        // longer empty — must drop the pending style, since a pending
         // role only ever applies to a still-empty block. Only the hook
         // re-derives this; the simulated mutation alone leaves
         // `typingAttributes` untouched.
@@ -310,7 +310,7 @@ struct EditorEngineTests {
         #expect(engine.formatState.blockStyle == .paragraph)
     }
 
-    // MARK: - Return key (M4 decision D5), through the seam
+    // MARK: - Return key, through the seam
 
     @Test func insertNewlineContinuesAListThroughTheSeam() {
         let engine = engine(Sem.block("one", .listItem(.unordered, depth: 0)))

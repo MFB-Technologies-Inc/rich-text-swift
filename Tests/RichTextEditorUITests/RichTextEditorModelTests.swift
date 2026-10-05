@@ -88,7 +88,7 @@ struct RichTextEditorModelTests {
         #expect(model.formatState.underline == .mixed)
     }
 
-    // MARK: - Deferred republication (M5 decision D8)
+    // MARK: - Deferred republication
 
     @Test func setTextDoesNotRepublishSynchronously() async {
         let (model, engine) = attached()

@@ -12,7 +12,7 @@ import RichTextCore
 ///
 /// `blockStyle` is the **pending** block role for an *empty* block: Foundation
 /// cannot store an attribute on zero-length content, so the role lives here
-/// until characters exist to carry it (M3 decision D13).
+/// until characters exist to carry it.
 public struct TypingAttributes: Hashable, Sendable {
     public var bold: Bool
     public var italic: Bool

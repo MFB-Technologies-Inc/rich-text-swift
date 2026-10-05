@@ -331,7 +331,7 @@ import Testing
         @Test func rebindingTheModelReattachesTheEngineAndRewiresPublishing() async {
             let (textView, coordinator, box, modelA, _) = harness("<p><b>bold</b> plain</p>")
             // `harness()`'s own `model.attach(engine)` now schedules a deferred
-            // republication (M5 decision D8); let it land before taking the
+            // republication; let it land before taking the
             // snapshot below, or it would fire later — during the settle after
             // `setModel` — and stomp `modelA`'s state out from under this test.
             await settle()
@@ -343,7 +343,7 @@ import Testing
             // hook) is what makes the new model's `formatState` correct.
             textView.selectedRange = NSRange(location: 0, length: 4)
 
-            // Simulate `updateUIView` swapping in a new model — e.g. M5's
+            // Simulate `updateUIView` swapping in a new model — e.g. the
             // `.richTextToolbar(...)` wrapper injecting its own `@State` model.
             // `setModel` is the single entry point `updateUIView` calls; it must
             // do all the re-wiring itself. Nothing here attaches the engine or
@@ -353,8 +353,8 @@ import Testing
             coordinator.setModel(modelB)
 
             // `setModel` re-attaches the engine via `attach(_:)`, which now
-            // defers its `formatState` republication off the update phase (M5
-            // decision D8) — `setModel` itself runs from `updateUIView`, so this
+            // defers its `formatState` republication off the update phase —
+            // `setModel` itself runs from `updateUIView`, so this
             // matches production. Await the hop before asserting.
             await settle()
             #expect(modelB.formatState.bold == .on)

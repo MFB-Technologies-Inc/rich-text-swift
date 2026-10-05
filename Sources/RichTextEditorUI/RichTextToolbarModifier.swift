@@ -10,8 +10,7 @@
     /// Adds the declarative toolbar above or below an editor (`placement`, default
     /// `.bottom`), and owns the view model both halves share.
     ///
-    /// The ownership direction is forced by SwiftUI (M5 decision D3, M4 decision
-    /// D3): `.environment(_:)` reaches only a view's *descendants*, and
+    /// The ownership direction is forced by SwiftUI: `.environment(_:)` reaches only a view's *descendants*, and
     /// `RichTextEditor(text: $doc).richTextToolbar([...])` places this modifier
     /// *above* the editor. So the editor cannot hand a model up to the toolbar —
     /// this modifier creates it and injects it *down* onto the editor, which reads
@@ -111,7 +110,7 @@
         /// control set.
         ///
         /// The bar sits below the editor and rides above the keyboard, since
-        /// SwiftUI's keyboard safe area insets it (M5 decision D2).
+        /// SwiftUI's keyboard safe area insets it.
         public func richTextToolbar(
             _ controls: [RichTextControl] = .default,
             placement: RichTextToolbarPlacement = .bottom

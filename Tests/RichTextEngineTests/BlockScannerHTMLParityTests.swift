@@ -9,7 +9,7 @@ import RichTextCore
 @testable import RichTextEngine
 import Testing
 
-/// Pins M3 decision D11's cross-layer requirement: `BlockScanner`'s block
+/// Pins a cross-layer requirement: `BlockScanner`'s block
 /// splitting must agree exactly with `HTMLEncoder.splitBlocks`. The two are
 /// independent implementations (different files, differently-written
 /// empty-slice guards) with no shared code, so nothing *forces* them to
@@ -19,7 +19,7 @@ import Testing
 /// Instead it reconstructs, from `RichTextHTML.encode`'s own output string,
 /// the same (style, text) sequence the encoder must have derived internally
 /// to produce that output — using a small test-only parser tailored to the
-/// canonical simple-HTML grammar (dev-plan: `<p>`, `<h1-3>`, and possibly-
+/// canonical simple-HTML grammar (`<p>`, `<h1-3>`, and possibly-
 /// nested `<ul>`/`<ol>`/`<li>` groups, joined by bare `"\n"` at the top
 /// level, with `<b>/<i>/<u>/<s>/<span style="color:...">` inline markup and
 /// `&amp;/&lt;/&gt;`/`<br>` escaping). That sequence is then compared against

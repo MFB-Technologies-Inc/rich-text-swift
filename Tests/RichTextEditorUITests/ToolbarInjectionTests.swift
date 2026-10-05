@@ -14,7 +14,7 @@ import Testing
     import SwiftUI
     import UIKit
 
-    /// The M4 -> M5 environment contract (M5 decision D3): the toolbar modifier
+    /// The environment contract between the toolbar and the editor: the toolbar modifier
     /// creates the model and injects it *downward*, and `RichTextEditor` adopts it
     /// instead of its own. Unverifiable until a toolbar existed to do the injecting.
     @MainActor

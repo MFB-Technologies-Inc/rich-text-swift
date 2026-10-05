@@ -52,7 +52,7 @@ struct EngineCoreInsertTests {
     }
 
     @Test func aParagraphFragmentIntoAnEmptyListItemBecomesAListItem() {
-        // The empty block's role is pending in the typing attributes (D13);
+        // The empty block's role is pending in the typing attributes;
         // pasting plain prose there should read like typing it.
         var typing = TypingAttributes()
         typing.blockStyle = .listItem(.unordered, depth: 0)

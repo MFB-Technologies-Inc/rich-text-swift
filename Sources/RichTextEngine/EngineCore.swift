@@ -16,7 +16,7 @@ struct EditResult: Equatable, Sendable {
 }
 
 /// All editing logic, as pure functions over `(AttributedString, TextSelection,
-/// TypingAttributes)`. UIKit-free by design (M3 decision D1): every behavior the
+/// TypingAttributes)`. UIKit-free by design: every behavior the
 /// editor has is testable here with `swift test`, and the platform adapters stay
 /// thin enough to eyeball.
 enum EngineCore {
@@ -50,7 +50,7 @@ enum EngineCore {
 
     /// The UTF-16 offset of the first character with no block role, or `nil`
     /// when every character has one. A newline doesn't count: an empty
-    /// block's separator can't hold a role (D13).
+    /// block's separator can't hold a role.
     static func firstRolelessOffset(in text: AttributedString) -> Int? {
         for run in text.runs where run.blockStyle == nil {
             if let index = text[run.range].characters.firstIndex(where: { $0 != "\n" }) {
@@ -245,12 +245,12 @@ enum EngineCore {
         }
         attributes.textColor = slice.textColor
         // `blockStyle` stays nil: a non-empty block carries its own marker, and
-        // an empty one has nothing to derive from (M3 decision D13).
+        // an empty one has nothing to derive from.
         return attributes
     }
 
     /// The typing attributes to use after the caret/selection moves, carrying
-    /// forward a *pending* block style (D13) only when it still describes the
+    /// forward a *pending* block style only when it still describes the
     /// same empty block.
     ///
     /// A pending style is per-empty-block intent, not global: if the caret was

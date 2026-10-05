@@ -9,7 +9,7 @@ import RichTextCore
 @testable import RichTextEngine
 import Testing
 
-/// `effectiveBlocks` is the rendering counterpart to M3 decision D13: a
+/// `effectiveBlocks` is the rendering counterpart to the pending block style: a
 /// pending block style (held in `TypingAttributes.blockStyle` because
 /// Foundation cannot attribute zero-length content) is substituted onto the
 /// caret's own empty block for rendering purposes only — never written back

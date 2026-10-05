@@ -14,7 +14,7 @@ import Testing
     import SwiftUI
     import UIKit
 
-    /// The milestone's exit criterion: the full v1 toolbar works end to
+    /// The full v1 toolbar works end to
     /// end through the `RichTextEditorModel` seam, with no control touching the
     /// text view.
     @MainActor

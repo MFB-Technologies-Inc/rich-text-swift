@@ -9,8 +9,8 @@ import RichTextCore
 @testable import RichTextEditorUI
 import Testing
 
-// Proves the simulator loop actually runs UIKit-dependent Swift Testing code
-// (M4 decision D1). On macOS `canImport(UIKit)` is false, so this suite is
+// Proves the simulator loop actually runs UIKit-dependent Swift Testing code.
+// On macOS `canImport(UIKit)` is false, so this suite is
 // compiled out entirely and `swift test` never sees it — exactly like the
 // adapter source it exists to cover.
 #if canImport(UIKit)

@@ -14,7 +14,7 @@ public enum ListKind: String, Codable, Hashable, Sendable {
 
 /// The semantic role of a block (a `\n`-delimited run of the flat model).
 ///
-/// This is the invisible source-of-truth marker (dev-plan §6a): it rides in
+/// This is the invisible source-of-truth marker: it rides in
 /// `AttributedString` storage as a custom attribute and drives encode/decode.
 /// Role is NEVER inferred from visual values like font size.
 public enum BlockStyle: Codable, Hashable, Sendable {
@@ -42,7 +42,7 @@ public enum BlockStyle: Codable, Hashable, Sendable {
 
 extension BlockStyle {
     /// The role of an empty block from the blocks on either side of it. An
-    /// empty block has no characters to carry a role (D13), so
+    /// empty block has no characters to carry a role, so
     /// one between two items of the same list (same kind and depth) is an empty
     /// item of that list, not a paragraph that splits it. Any other empty block
     /// has no role of its own. The encoder and `BlockScanner` both use this, so

@@ -7,7 +7,7 @@
 import Foundation
 
 /// Maps each semantic block role to the concrete visual attributes it renders
-/// with (dev-plan §6a / Decision #9). Values are framework-neutral descriptors;
+/// with. Values are framework-neutral descriptors;
 /// the engine (Layer 2) turns them into real `UIFont`/attributes.
 ///
 /// Built injection-capable on purpose: v1 ships only `.default` and does not

@@ -61,7 +61,7 @@
 
         /// Keeps the state right after an engine edit whose typing attributes
         /// hold something the text can't: a caret command's choice, or the
-        /// pending block style of the empty block a Return opens (D13). Undoing
+        /// pending block style of the empty block a Return opens. Undoing
         /// the typing that followed re-derives the typing attributes from the
         /// text and would lose it; `restoreCaretCommandTypingAttributes()`
         /// brings it back when the document lands on this state again.

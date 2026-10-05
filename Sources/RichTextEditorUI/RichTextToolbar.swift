@@ -14,7 +14,7 @@
     // cannot be reaching around it to poke `UITextView` directly.
 
     /// The declarative toolbar: one horizontally scrolling row of controls, in
-    /// exactly the order the consumer declared them (M5 decision D4).
+    /// exactly the order the consumer declared them.
     ///
     /// A thin renderer — every decision it appears to make (which command a
     /// control sends, whether it looks active) is `RichTextControl`'s pure
@@ -50,7 +50,7 @@
             }
             // `.textColor` has no command of its own — the system picker's binding
             // issues `.setTextColor(_:)` directly as the user picks, and picking
-            // black removes the color (M5 decision D5).
+            // black removes the color.
             guard let command = control.command else {
                 return
             }
@@ -109,7 +109,7 @@
         func body(content: Content) -> some View {
             content
                 // 44pt targets are preserved rather than shrunk to fit; the row
-                // scrolls instead (M5 decision D4).
+                // scrolls instead.
                 .frame(width: 44, height: 44)
                 .foregroundStyle(active ? Color.white : Color.primary)
                 .background(

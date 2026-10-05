@@ -9,7 +9,7 @@ import RichTextCore
 
 /// One `\n`-delimited block of the flat document, in UTF-16 offsets.
 /// The range **excludes** the trailing newline, so it matches exactly what
-/// `HTMLEncoder.splitBlocks` reads when serializing (M3 decision D11).
+/// `HTMLEncoder.splitBlocks` reads when serializing.
 struct DocumentBlock: Equatable, Sendable {
     var location: Int
     var length: Int
@@ -26,7 +26,8 @@ struct DocumentBlock: Equatable, Sendable {
 
 /// Splits the flat model into blocks. The `blockStyle` marker is the source of
 /// truth; an empty block cannot carry one and reports `.paragraph` (the same
-/// default the encoder uses — see M3 decision D13 for how editing works around it).
+/// default the encoder uses; editing holds such a block's role as a pending
+/// block style in the typing attributes).
 enum BlockScanner {
     static func blocks(of text: AttributedString) -> [DocumentBlock] {
         var result: [DocumentBlock] = []
@@ -62,7 +63,7 @@ enum BlockScanner {
 
     /// Blocks the selection touches. A caret belongs to the block it sits in;
     /// a selection that merely ends at the start of the next block does not
-    /// include that block (M3 decision D11).
+    /// include that block.
     static func blocks(of text: AttributedString, intersecting selection: TextSelection) -> [DocumentBlock] {
         let all = blocks(of: text)
         let total = TextOffsets.length(of: text)
@@ -76,7 +77,7 @@ enum BlockScanner {
         return all.filter { $0.location < upper && $0.location + $0.length >= lower }
     }
 
-    /// Rendering counterpart to M3 decision D13: `blocks(of:)` reports
+    /// Rendering counterpart to the pending block style: `blocks(of:)` reports
     /// `.paragraph` for an empty block because Foundation cannot attach an
     /// attribute to zero-length content, but while the caret sits in that
     /// block, its *actual* role is held as a pending style in

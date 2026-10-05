@@ -10,7 +10,7 @@ import Testing
 
 /// An empty block between two items of the same list is an empty item of
 /// that list, not a paragraph that splits it. An empty
-/// block can't carry a role of its own (D13), so the role comes from the
+/// block can't carry a role of its own, so the role comes from the
 /// items around it.
 struct EmptyListItemHTMLTests {
     private let one = BlockStyle.listItem(.ordered, depth: 0)

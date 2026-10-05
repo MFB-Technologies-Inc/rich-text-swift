@@ -6,8 +6,7 @@
 
 import Foundation
 
-/// Converts between UTF-16 offsets (the `NSRange` currency the engine speaks —
-/// see M3 decision D9) and `AttributedString.Index` values.
+/// Converts between UTF-16 offsets (the `NSRange` currency the engine speaks) and `AttributedString.Index` values.
 ///
 /// Foundation-only on purpose: this is the one piece of genuinely fiddly
 /// bridging in the engine, so it lives where `swift test` can cover it on macOS

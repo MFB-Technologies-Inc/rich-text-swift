@@ -12,7 +12,7 @@ import Testing
     @testable import RichTextEngine
     import UIKit
 
-    /// Markers are drawn, never stored (M4 decision D7): the document must stay
+    /// Markers are drawn, never stored: the document must stay
     /// free of marker text while the view shows bullets and numbers.
     @MainActor
     struct ListMarkerLayoutTests {
@@ -323,7 +323,7 @@ import Testing
         /// controller reports `nil` for the new empty block's offset because
         /// `BlockScanner.blocks(of:)` reports `.paragraph` for it (Foundation
         /// cannot attribute zero-length content); the actual role only lives in
-        /// `typingAttributes.blockStyle` (M3 decision D13), which nothing fed to
+        /// `typingAttributes.blockStyle`, which nothing fed to
         /// the renderer before this fix.
         @Test func theNextMarkerAppearsImmediatelyAfterReturn() {
             let (_, engine) = editor("<ol><li>one</li></ol>")

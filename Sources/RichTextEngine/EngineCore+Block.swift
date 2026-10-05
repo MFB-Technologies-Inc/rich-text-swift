@@ -19,12 +19,12 @@ enum BlockOperation {
 
 extension EngineCore {
     /// Applies a block command to every block the selection touches
-    /// (whole-block semantics, M3 decision D11). Text and selection are never
+    /// (whole-block semantics). Text and selection are never
     /// changed — only the invisible marker.
     ///
     /// An *empty* block cannot carry the marker (Foundation cannot attribute
     /// zero-length content), so for a caret in an empty block the role is held
-    /// as a pending typing attribute until characters exist (D13).
+    /// as a pending typing attribute until characters exist.
     ///
     /// A pending block style is meaningful only for a caret: it is the intent
     /// for characters not yet typed. A non-collapsed selection has no such
@@ -94,7 +94,7 @@ extension EngineCore {
                 return .paragraph
             }
             // Preserve existing nesting so decoded nested content survives a
-            // kind change; new items start flat (M3 decision D12).
+            // kind change; new items start flat.
             if case let .listItem(_, depth) = currentStyle(block) {
                 return .listItem(kind, depth: depth)
             }

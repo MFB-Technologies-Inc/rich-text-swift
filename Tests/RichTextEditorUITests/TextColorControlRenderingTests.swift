@@ -69,7 +69,7 @@ import Testing
             window.layoutIfNeeded()
 
             // The control is constrained to the 44pt chrome every other control
-            // uses (M5 decision D4), so nothing it renders may exceed that.
+            // uses, so nothing it renders may exceed that.
             let colorWell = try descendants(of: #require(window.rootViewController?.view))
                 .first { String(describing: type(of: $0)).contains("ColorWell") }
             let size = colorWell?.bounds.size

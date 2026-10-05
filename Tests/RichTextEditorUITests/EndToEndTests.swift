@@ -14,7 +14,7 @@ import Testing
     import SwiftUI
     import UIKit
 
-    /// The milestone's exit criterion, exercised the way a consumer would:
+    /// The whole pipeline, exercised the way a consumer would:
     /// a document goes in, edits happen through the view model and the text view,
     /// and clean HTML comes out.
     @MainActor

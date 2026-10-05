@@ -9,7 +9,7 @@ import RichTextCore
 
 /// The concept-level editing seam: semantic text, selection, typing attributes,
 /// state to read, commands to apply. Deliberately says nothing about
-/// `UITextView` — dev-plan §4 Layer 2 — so the future `NSTextView` engine
+/// `UITextView`, so the future `NSTextView` engine
 /// implements this same protocol and the whole UI layer above it carries over
 /// untouched.
 ///
@@ -34,7 +34,7 @@ public protocol EditorEngine: AnyObject {
     /// Applies a formatting intent.
     func apply(_ command: FormatCommand)
 
-    /// Applies the Return-key policy at the current selection (M4 decision D5):
+    /// Applies the Return-key policy at the current selection:
     /// a list item continues the list, an empty list item leaves it, a
     /// heading's Return starts a paragraph. Platform adapters call this when
     /// they intercept the keystroke instead of letting the view insert a plain
@@ -45,7 +45,7 @@ public protocol EditorEngine: AnyObject {
     /// selection changed but the text did not (arrow keys, tap-to-place).
     /// Cheap: implementations re-derive from the document already held in
     /// memory, with no storage conversion, so this is safe to call on every
-    /// selection change. A pending block style (D13) is only kept correct if
+    /// selection change. A pending block style is only kept correct if
     /// this is called on *every* one of them.
     func synchronizeSelection()
 

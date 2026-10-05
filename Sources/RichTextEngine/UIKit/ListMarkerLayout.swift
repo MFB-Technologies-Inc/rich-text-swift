@@ -25,7 +25,7 @@
 
     /// A layout fragment that draws its list marker in the indent gutter.
     ///
-    /// The marker is drawn, never stored (M4 decision D7): putting "• " in the
+    /// The marker is drawn, never stored: putting "• " in the
     /// document would corrupt the model, every selection offset, and the HTML.
     final class ListMarkerFragment: NSTextLayoutFragment {
         /// The markers to draw from, supplied by
@@ -227,7 +227,7 @@
         ///
         /// `selection` and `pendingBlockStyle` feed
         /// `BlockScanner.effectiveBlocks(of:selection:pendingBlockStyle:)`, the
-        /// rendering-only substitution (M3 decision D13) that lets a still-empty
+        /// rendering-only substitution that lets a still-empty
         /// list item show its bullet/number immediately, before any character
         /// exists to carry the role in the document.
         func update(
