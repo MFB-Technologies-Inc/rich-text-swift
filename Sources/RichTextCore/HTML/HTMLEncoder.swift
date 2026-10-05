@@ -70,7 +70,7 @@ enum HTMLEncoder {
             // open levels up to this depth. A level skipped on the way down
             // (a jump of more than one) still needs an `<li>` to hold the
             // next list, or that list lands as an invalid direct child of
-            // this one (GitHub issue #49). `display:block` keeps a browser
+            // this one. `display:block` keeps a browser
             // from drawing a marker for the placeholder or counting it, so
             // the rendered list matches the editor's. The decoder folds an
             // `<li>` that holds nothing but a nested list into the nested

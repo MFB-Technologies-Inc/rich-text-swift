@@ -141,7 +141,7 @@ import Testing
 
         /// An empty list item's role lives only in the pending typing
         /// attributes, so undoing the typing in it must bring the pending
-        /// style back, not just the empty block (GitHub issue #21).
+        /// style back, not just the empty block.
         @Test func undoingTheTypingInANewListItemKeepsItsBullet() {
             let (textView, engine, window) = editor("<ul><li>one</li></ul>")
             step(textView) {

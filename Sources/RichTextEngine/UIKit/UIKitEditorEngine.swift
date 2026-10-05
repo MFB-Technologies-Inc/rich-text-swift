@@ -291,7 +291,7 @@
             if let ingested = normalizedEdit(edited) {
                 // UIKit put CR, explicit black or text with no block role into
                 // storage on its own (drag and drop, the `.system` paste
-                // fallback, typing over a selection: GitHub issue #73). Storage
+                // fallback, typing over a selection). Storage
                 // must hold the same characters as `semanticText` or every UTF-16
                 // offset after a collapsed CRLF drifts, so render the normalized
                 // document back. As in the `text` setter, the undo entries UIKit just

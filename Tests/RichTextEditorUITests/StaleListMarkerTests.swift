@@ -15,8 +15,7 @@ import Testing
     /// UIKit lays out an edit before the engine syncs, so TextKit builds some
     /// fragments while the markers still describe the document as it was. It
     /// then reuses those fragments, and ones for untouched paragraphs further
-    /// down, after the sync. Every fragment must still draw the right marker
-    /// (GitHub issue #77).
+    /// down, after the sync. Every fragment must still draw the right marker.
     @MainActor
     struct StaleListMarkerTests {
         private let threeItems = "<ol><li>one</li><li>two</li><li>three</li></ol>"

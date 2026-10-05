@@ -11,7 +11,7 @@
     /// Every document block with a marker, plus its indent and marker
     /// attributes, as of the last `ListMarkerLayoutController.update`.
     ///
-    /// Fragments share this rather than copying it (GitHub issue #77). UIKit
+    /// Fragments share this rather than copying it. UIKit
     /// lays out an edit before the engine updates the markers, so TextKit can
     /// build a fragment against the old document and keep it afterwards. It
     /// also keeps the fragments of paragraphs an edit didn't touch, even when
@@ -326,7 +326,7 @@
             in textElement: NSTextElement
         ) -> NSTextLayoutFragment {
             let fragment = ListMarkerFragment(textElement: textElement, range: textElement.elementRange)
-            // An empty document gets no marker (GitHub issue #69). Its only
+            // An empty document gets no marker. Its only
             // block can still carry a list role, from the item just deleted,
             // and a bullet there would sit over the placeholder.
             guard textLayoutManager.textContentManager?.documentRange.isEmpty == false else {

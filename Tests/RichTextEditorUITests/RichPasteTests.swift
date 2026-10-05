@@ -19,7 +19,7 @@ import Testing
     /// headings survive and the view shows the theme, not the source's styling.
     ///
     /// The pasteboard is injected (`htmlForPaste`, `plainTextForPaste`) because
-    /// `UIPasteboard.general` hangs this bundle (GitHub issue #40).
+    /// `UIPasteboard.general` hangs this bundle (GitHub issue #26).
     @MainActor
     struct RichPasteTests {
         private final class Box { var value = AttributedString() }

@@ -7,7 +7,7 @@
 import Foundation
 
 /// Hand-written so the saved format belongs to us, not to how the enum happens
-/// to be declared (GitHub issue #82). Synthesized coding keys an unlabeled
+/// to be declared. Synthesized coding keys an unlabeled
 /// associated value as `"_0"`, so renaming a case or labeling a value would
 /// silently stop every saved document from decoding. The shapes are:
 ///

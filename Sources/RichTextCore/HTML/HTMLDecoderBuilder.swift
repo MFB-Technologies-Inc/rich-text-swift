@@ -137,7 +137,7 @@ extension HTMLDecoder {
             // `openBlock`'s wrapper rule, and `.blockquote` carries no depth
             // to record it.
             //
-            // KNOWN LIMITATION (GitHub issue #20): there is no quote-context
+            // KNOWN LIMITATION (GitHub issue #8): there is no quote-context
             // stack here, so a `<blockquote>` wrapping *multiple* blocks only
             // keeps the quote role on the first one — `<blockquote><p>a</p>
             // <p>b</p></blockquote>` decodes `b` as a plain `.paragraph`,
@@ -294,8 +294,8 @@ extension HTMLDecoder {
                     currentStyle = style
                 } else if case .listItem = style, case .listItem = currentStyle {
                     // An `<li>` holding nothing but a nested list is the
-                    // placeholder `HTMLEncoder` opens for a skipped level
-                    // (GitHub issue #49): the inner item's kind and depth are
+                    // placeholder `HTMLEncoder` opens for a skipped level:
+                    // the inner item's kind and depth are
                     // the real ones, so they win over the placeholder's.
                     currentStyle = style
                 }

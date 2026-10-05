@@ -14,7 +14,7 @@ import Testing
 
     /// Text typed over a selection that spans blocks of different roles takes
     /// the role of the block where the selection starts, the rule a paste
-    /// already follows (GitHub issue #73). Before, it got no role at all.
+    /// already follows. Before, it got no role at all.
     ///
     /// The keyboard deletes the selection before it inserts, and when that
     /// empties a block UIKit resets the typing attributes, so the typed text

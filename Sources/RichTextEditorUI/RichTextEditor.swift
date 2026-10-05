@@ -77,7 +77,7 @@
         /// characters at all. A document holding just a newline is *not* empty —
         /// it has a block the user can type into. A list turned on in an empty
         /// document (`blockStyle`, the caret's role) has started, so the
-        /// placeholder gives way to it (GitHub issue #71).
+        /// placeholder gives way to it.
         static func showsPlaceholder(
             placeholder: String?,
             in text: AttributedString,

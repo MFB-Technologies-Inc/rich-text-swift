@@ -1,6 +1,6 @@
 # SwiftRichText
 
-[![CI](https://github.com/MFB-Technologies-Inc/SwiftRichText/actions/workflows/ci.yml/badge.svg)](https://github.com/MFB-Technologies-Inc/SwiftRichText/actions/workflows/ci.yml)
+[![CI](https://github.com/MFB-Technologies-Inc/rich-text-swift/actions/workflows/ci.yml/badge.svg)](https://github.com/MFB-Technologies-Inc/rich-text-swift/actions/workflows/ci.yml)
 
 A native SwiftUI rich text editor for iOS, backed by `AttributedString`, that round-trips to clean,
 minimal HTML.
@@ -37,7 +37,7 @@ iOS 17+. Swift 6, strict concurrency. No third-party dependencies.
 ## Installation
 
 ```swift
-.package(url: "https://github.com/MFB-Technologies-Inc/SwiftRichText.git", from: "1.0.0")
+.package(url: "https://github.com/MFB-Technologies-Inc/rich-text-swift.git", from: "1.0.0")
 ```
 
 ## Usage
@@ -100,7 +100,7 @@ The dialect is small and closed: `<p>`, `<h1>`–`<h3>`, `<ul>`/`<ol>`/`<li>` (n
 entities are all normalized, and unknown tags are unwrapped so their text survives. Canonical documents satisfy `decode(encode(x)) == x`.
 A list item more than one level deeper than the item before it gets one `<li style="display:block">`
 per skipped level to hold the nested list, so the HTML stays valid and a browser draws no marker
-for the skipped level ([#49](https://github.com/MFB-Technologies-Inc/SwiftRichText/issues/49)).
+for the skipped level.
 
 Tags outside the dialect are text-preserving but attribute-dropping: a `<a href="...">link</a>`
 imports as the word *link* with no href, and an `<img alt="chart">` imports as the word *chart* (an
@@ -129,7 +129,7 @@ Bold, italic, underline, strikethrough, text color, bulleted and numbered lists,
 
 Deliberately not in v1, all additive later: links, highlight, blockquote, more heading levels, font
 size and family, soft breaks, Markdown, list indent/outdent authoring, and a macOS port. Known
-deferrals and defects are tracked in [GitHub Issues](https://github.com/MFB-Technologies-Inc/SwiftRichText/issues).
+deferrals and defects are tracked in [GitHub Issues](https://github.com/MFB-Technologies-Inc/rich-text-swift/issues).
 
 ## Design
 
@@ -245,7 +245,7 @@ Contributions are welcome: bug reports, fixes, tests, and docs.
 
 ### Reporting a bug
 
-Open a [GitHub issue](https://github.com/MFB-Technologies-Inc/SwiftRichText/issues) with:
+Open a [GitHub issue](https://github.com/MFB-Technologies-Inc/rich-text-swift/issues) with:
 
 - The steps to reproduce it, ideally starting from HTML you can paste into the Demo app's Load tab.
 - What you expected and what happened.

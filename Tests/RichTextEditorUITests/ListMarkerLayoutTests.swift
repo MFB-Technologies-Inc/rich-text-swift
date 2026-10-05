@@ -75,7 +75,7 @@ import Testing
             _ = engine
         }
 
-        /// GitHub issue #69: UIKit lays out an emptied document before the
+        /// UIKit lays out an emptied document before the
         /// engine updates the markers, so the controller can still describe
         /// the deleted list item. The empty document's fragment must get no
         /// marker, or its bullet sits over the placeholder.

@@ -13,8 +13,7 @@ import Testing
     import UIKit
 
     /// Deleting a middle list item's text leaves an empty item that keeps its
-    /// number and saves as one; one more backspace removes the row (GitHub
-    /// issue #74).
+    /// number and saves as one; one more backspace removes the row.
     @MainActor
     struct EmptyListItemEditingTests {
         private func emptiedMiddleItem() -> (UITextView, UIKitEditorEngine, UIWindow) {

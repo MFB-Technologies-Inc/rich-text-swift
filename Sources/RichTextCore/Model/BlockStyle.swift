@@ -41,8 +41,8 @@ public enum BlockStyle: Codable, Hashable, Sendable {
 }
 
 extension BlockStyle {
-    /// The role of an empty block from the blocks on either side of it (GitHub
-    /// issue #74). An empty block has no characters to carry a role (D13), so
+    /// The role of an empty block from the blocks on either side of it. An
+    /// empty block has no characters to carry a role (D13), so
     /// one between two items of the same list (same kind and depth) is an empty
     /// item of that list, not a paragraph that splits it. Any other empty block
     /// has no role of its own. The encoder and `BlockScanner` both use this, so

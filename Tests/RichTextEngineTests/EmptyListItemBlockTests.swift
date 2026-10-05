@@ -10,8 +10,8 @@ import RichTextCore
 import Testing
 
 /// `BlockScanner` reports an empty block between two items of the same list
-/// as an empty item of that list, the rule the encoder writes it by (GitHub
-/// issue #74), so the editor draws, numbers and types into it as an item.
+/// as an empty item of that list, the rule the encoder writes it by, so the
+/// editor draws, numbers and types into it as an item.
 struct EmptyListItemBlockTests {
     private let one = BlockStyle.listItem(.ordered, depth: 0)
 

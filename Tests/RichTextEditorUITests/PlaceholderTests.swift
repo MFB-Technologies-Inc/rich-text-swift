@@ -37,7 +37,7 @@ import Testing
         }
 
         /// Turning a list on in an empty document starts the list, so the
-        /// placeholder gives way to it (GitHub issue #71).
+        /// placeholder gives way to it.
         @Test func hidesWhileTheCaretsBlockIsAListItem() {
             for style in [BlockStyle.listItem(.unordered, depth: 0), .listItem(.ordered, depth: 0)] {
                 #expect(RichTextEditor.showsPlaceholder(

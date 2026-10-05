@@ -55,7 +55,7 @@
 
         /// Where pasted HTML comes from. Injectable for the same reason as
         /// `plainTextForPaste`, so this default is the one line of the rich
-        /// paste no test runs (GitHub issue #40).
+        /// paste no test runs (GitHub issue #26).
         var htmlForPaste: () -> String? = { RichTextTextView.pasteboardHTML(UIPasteboard.general) }
 
         /// Set from `RichTextEditorRepresentable`. Weak because the engine
@@ -161,8 +161,8 @@
         /// `\n` is the only block separator the model knows (`BlockScanner`), and
         /// a Windows-authored paste — which is what Word and Outlook actually put
         /// on the pasteboard — otherwise leaves a stray `\r` *inside* a block,
-        /// where it survives every round trip (GitHub issue #12). Normalizing on
-        /// ingest is the fix that issue asks for, applied to the one ingest path
+        /// where it survives every round trip. Normalizing on
+        /// ingest is the fix, applied to the one ingest path
         /// this type owns.
         ///
         /// The rule itself is `LineEndings.normalized(_:)`, shared with the

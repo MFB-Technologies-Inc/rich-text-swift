@@ -107,9 +107,9 @@ The menu has no Paste, and nothing you do changes the document.
 
 ## Undo
 
-These cover engine undo from PR #7 (merge `c41e8d3`): formatting commands and Return register
+These cover engine undo: formatting commands and Return register
 their own undo steps on the text view's undo manager, between the steps UIKit records for typing.
-`EngineUndoTests` groups undo by hand, and GitHub issue #41 explains why that isn't enough: two
+`EngineUndoTests` groups undo by hand, and GitHub issue #27 explains why that isn't enough: two
 versions of the caret-Bold fix passed every test and still misbehaved in the app. Type with the
 on-screen keyboard, not by pasting.
 
@@ -152,8 +152,7 @@ the old one wholesale and recorded no undo step, so the old steps can't be repla
 
 ## Lists
 
-These cover list items that sit more than one level deeper than the item before them (GitHub issue
-[#49](https://github.com/MFB-Technologies-Inc/SwiftRichText/issues/49)). HTML only allows `<li>`
+These cover list items that sit more than one level deeper than the item before them. HTML only allows `<li>`
 as a child of `<ul>` and `<ol>`, so the encoder opens an empty `<li>` for each skipped level to
 hold the next list, and the decoder folds that placeholder back into the item below it. The
 placeholder is `<li style="display:block">`, so a browser neither draws a marker for it nor
