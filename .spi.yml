@@ -1,0 +1,7 @@
+version: 1
+builder:
+    configs:
+        # The editor UI is `#if os(iOS)`, so the docs must build for iOS or they
+        # silently omit it (the same reason CI's DocC job uses an iOS destination).
+        - platform: ios
+          documentation_targets: [RichTextCore, RichTextEditorUI]

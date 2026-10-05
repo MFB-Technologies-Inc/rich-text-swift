@@ -1,6 +1,8 @@
 # SwiftRichText
 
 [![CI](https://github.com/MFB-Technologies-Inc/rich-text-swift/actions/workflows/ci.yml/badge.svg)](https://github.com/MFB-Technologies-Inc/rich-text-swift/actions/workflows/ci.yml)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMFB-Technologies-Inc%2Frich-text-swift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/MFB-Technologies-Inc/rich-text-swift)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMFB-Technologies-Inc%2Frich-text-swift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/MFB-Technologies-Inc/rich-text-swift)
 
 A native SwiftUI rich text editor for iOS, backed by `AttributedString`, that round-trips to clean,
 minimal HTML.
@@ -307,9 +309,9 @@ Some more guidelines:
 - **Keep pull requests focused.** One fix or feature per PR, with a description of what changed,
   why, and how you tested it. Link the issue it closes.
 
-CI runs the tests on macOS and the iOS simulator, checks the layer boundaries, and builds the docs,
-the benchmarks and the Demo app. A pull request needs CI to pass and a maintainer's review before
-it's merged.
+CI runs SwiftFormat and SwiftLint and the tests on macOS and the iOS simulator, checks the layer
+boundaries, and builds the docs, the benchmarks and the Demo app. A pull request needs CI to pass
+and a maintainer's review before it's merged.
 
 By contributing, you agree that your contributions are licensed under the [MIT license](LICENSE).
 
