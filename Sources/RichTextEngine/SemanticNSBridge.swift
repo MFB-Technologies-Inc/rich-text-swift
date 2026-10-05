@@ -238,15 +238,15 @@ enum SemanticNSBridge {
         let strikethrough = (attributes[strikethroughKey] as? Bool) == true
         let color = attributes[textColorKey] as? RichTextColor
 
-        /// A real text view applies its typing attributes to every
-        /// inserted character, including a typed "\n" — so one incoming
-        /// run can mix newline and non-newline characters under the same
-        /// (polluted) inline attributes, e.g. "abc\ndef" all bold. Split
-        /// the run into maximal stretches sharing the same classification
-        /// — non-newline, "kept" newline, or "empty-block" newline — so
-        /// inline attributes never land on a separator and `blockStyle`
-        /// never lands on an empty block's newline, regardless of how the
-        /// source run happened to be shaped.
+        // A real text view applies its typing attributes to every
+        // inserted character, including a typed "\n" — so one incoming
+        // run can mix newline and non-newline characters under the same
+        // (polluted) inline attributes, e.g. "abc\ndef" all bold. Split
+        // the run into maximal stretches sharing the same classification
+        // — non-newline, "kept" newline, or "empty-block" newline — so
+        // inline attributes never land on a separator and `blockStyle`
+        // never lands on an empty block's newline, regardless of how the
+        // source run happened to be shaped.
         func classify(_ index: String.Index) -> (isNewline: Bool, keepsBlockStyle: Bool) {
             guard substring[index] == "\n" else { return (false, true) }
             return (true, !formsEmptyBlock(at: index, in: fullString))

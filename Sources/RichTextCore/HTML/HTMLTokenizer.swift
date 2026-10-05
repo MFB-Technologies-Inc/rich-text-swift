@@ -37,7 +37,7 @@ enum HTMLTokenizer {
         // `bytes`, so it is decoded in place rather than copied into a buffer.
         var textStart = 0
 
-        /// Emits the text run `bytes[textStart ..< index]`, if there is one.
+        // Emits the text run `bytes[textStart ..< index]`, if there is one.
         func flush() {
             if textStart < index {
                 let text = string(bytes[textStart ..< index])
