@@ -11,6 +11,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      # Installs SwiftFormat and SwiftLint through mise.toml, the same way a local
+      # checkout does (see Development setup in the README).
+      - uses: jdx/mise-action@v2
+      - name: SwiftFormat
+        run: swiftformat --lint .
+      - name: SwiftLint
+        run: swiftlint lint --quiet
+
   macos-tests:
     name: swift test (macOS)
     runs-on: macos-15
