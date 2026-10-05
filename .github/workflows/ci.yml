@@ -1,0 +1,204 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos-tests:
+    name: swift test (macOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: swift --version
+
+      # The fast loop. Everything platform-agnostic lives here: the model, the
+      # HTML serializer, and all of the engine's pure logic.
+      - name: Run tests
+        run: swift test
+
+  ios-tests:
+    name: xcodebuild test (iOS Simulator)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # The UIKit adapter and the SwiftUI layer are compiled out on macOS, so
+      # this leg is the only thing that exercises them at all.
+      - name: Pick an available iPhone simulator
+        id: sim
+        run: |
+          set -euo pipefail
+          # Resolved at runtime rather than hardcoded: the installed simulators
+          # differ between runner images and change without notice. simctl
+          # lists runtimes oldest-first, so the last match is the newest iOS.
+          udid=$(xcrun simctl list devices available --json | jq -r '
+            [ .devices
+              | to_entries[]
+              | select(.key | test("iOS"))
+              | .value[]
+              | select(.isAvailable and (.name | startswith("iPhone")))
+            ] | last | .udid // empty')
+          if [ -z "$udid" ]; then
+            echo "::error::no available iPhone simulator on this runner"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl list devices available | grep "$udid"
+
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -scheme rich-text-swift-Package \
+            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}"
+
+  layer-purity:
+    name: Layer purity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The three-layer split is what keeps a macOS port additive, so it is
+      # enforced mechanically rather than by review. Every check ignores
+      # comments: several files legitimately *mention* UIKit types in prose.
+      - name: Check layer boundaries
+        run: |
+          set -euo pipefail
+
+          # Strips // line comments, /// doc comments, and blank lines.
+          code_only() {
+            sed -e 's://.*::' "$1" | grep -v '^[[:space:]]*$' || true
+          }
+
+          fail=0
+          check() {
+            local description="$1" pattern="$2"; shift 2
+            for file in "$@"; do
+              if code_only "$file" | grep -qE "$pattern"; then
+                echo "::error file=$file::$description"
+                fail=1
+              fi
+            done
+          }
+
+          # Layer 1 is platform-agnostic: Foundation only.
+          check "RichTextCore must not import a UI framework" \
+            '^[[:space:]]*import (UIKit|AppKit|SwiftUI)' \
+            $(find Sources/RichTextCore -name '*.swift')
+
+          # Layer 2 is Foundation-only outside its UIKit/ subfolder.
+          check "RichTextEngine may only touch UIKit inside Sources/RichTextEngine/UIKit/" \
+            '^[[:space:]]*import (UIKit|AppKit)' \
+            $(find Sources/RichTextEngine -name '*.swift' -not -path 'Sources/RichTextEngine/UIKit/*')
+
+          # Layer 3 owns the platform conditionals; the layers below must not.
+          check "#if os(iOS) belongs to RichTextEditorUI" \
+            '#if os\(iOS\)' \
+            $(find Sources/RichTextCore Sources/RichTextEngine Sources/SwiftRichText -name '*.swift')
+
+          # The command/state seam stays closed: RichTextEngine is a target,
+          # never a product, and is not re-exported from the umbrella.
+          if grep -qE '^\s*\.library\(name: "RichTextEngine"' Package.swift; then
+            echo "::error file=Package.swift::RichTextEngine must not be a package product"
+            fail=1
+          fi
+          if code_only Sources/SwiftRichText/Exports.swift | grep -q '@_exported import RichTextEngine'; then
+            echo "::error file=Sources/SwiftRichText/Exports.swift::RichTextEngine must not be re-exported"
+            fail=1
+          fi
+
+          if [ "$fail" -eq 0 ]; then echo "Layer boundaries hold."; fi
+          exit "$fail"
+
+  docs:
+    name: DocC (iOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      # Proves the README's documented command actually works, and that the
+      # iOS-only UI layer really is documented when built for an iOS
+      # destination (a host-platform docs build silently omits it).
+      - name: Build documentation
+        env:
+          SWIFTRICHTEXT_DOCS: "1"
+        run: |
+          set -o pipefail
+          xcodebuild docbuild \
+            -scheme rich-text-swift-Package \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/docs-dd" | tail -20
+      - name: Assert the iOS-only public API is present
+        run: |
+          set -euo pipefail
+          archive=$(find "$RUNNER_TEMP/docs-dd" -name 'RichTextEditorUI.doccarchive' -print -quit)
+          if [ -z "$archive" ]; then
+            echo "::error::no RichTextEditorUI.doccarchive was produced"
+            exit 1
+          fi
+          docs="$archive/data/documentation/richtexteditorui"
+          fail=0
+          for symbol in richtexteditor richtextcontrol richtexttoolbarplacement; do
+            if [ ! -e "$docs/$symbol.json" ]; then
+              echo "::error::$symbol is missing from the documentation archive"
+              fail=1
+            fi
+          done
+          # The toolbar entry point is an extension on View, not a top-level symbol.
+          if ! grep -rq 'richTextToolbar' "$archive/data"; then
+            echo "::error::richTextToolbar(_:placement:) is missing from the documentation archive"
+            fail=1
+          fi
+          [ "$fail" -eq 0 ] && echo "Documentation covers the iOS public API."
+          exit "$fail"
+
+  benchmarks:
+    name: Build benchmarks
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      # The benchmark target only exists when SWIFTRICHTEXT_BENCHMARK is set,
+      # so nothing else in CI compiles it. Build only: hosted runners are too
+      # noisy for the numbers to mean anything. jemalloc is disabled because it
+      # only feeds the malloc metrics and is not installed on the runner.
+      - name: Build benchmark target
+        env:
+          SWIFTRICHTEXT_BENCHMARK: "1"
+          BENCHMARK_DISABLE_JEMALLOC: "true"
+        run: swift build --target RichTextCore-benchmarks
+
+  demo-app:
+    name: Build demo app (iOS Simulator)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      # Installs only the Tuist version pinned in Demo/mise.toml. mise also
+      # reads the root mise.toml, whose lint tools this job does not need.
+      - uses: jdx/mise-action@v2
+        with:
+          working_directory: Demo
+          install_args: tuist
+      - name: Generate project
+        working-directory: Demo
+        run: |
+          tuist install
+          tuist generate --no-open
+      - name: Build
+        working-directory: Demo
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -workspace SwiftRichTextDemo.xcworkspace \
+            -scheme SwiftRichTextDemo \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/demo-dd" \
+            CODE_SIGNING_ALLOWED=NO \
+            | grep -aE "error:|warning:|BUILD (SUCCEEDED|FAILED)"

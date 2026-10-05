@@ -1,0 +1,242 @@
+#!/usr/bin/env bash
+# benchmark
+# SwiftRichText
+#
+# This source code is licensed under the MIT License (MIT) found in the
+# LICENSE file in the root directory of this source tree.
+#
+# Save and compare benchmark baselines, including baselines built from any git
+# ref, so a change can be measured against the code it replaces.
+#
+# A thin wrapper over package-benchmark's own `baseline` commands. Baselines
+# live in `.benchmarkBaselines/<target>/<name>/`, which is gitignored.
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: Scripts/benchmark <command> [options]
+
+Commands:
+  diff <ref> [<other-ref>]   Benchmark <ref> and compare it against the working
+                             tree, or against <other-ref> when one is given.
+                             Saves each ref as baseline diff-<ref>, adding
+                             -1 and -2 if the sanitized names collide.
+  save <name>                Run the working tree and store it as baseline <name>.
+  save-ref <ref> [<name>]    Run the committed code at <ref> in a scratch worktree
+                             and store it as baseline <name> (default: <ref>).
+  compare <name> [<other>]   Compare baseline <name> against baseline <other>, or
+                             against a fresh run of the working tree.
+  list                       List stored baselines.
+  delete <name>...           Delete stored baselines.
+  clean                      Remove the scratch worktree used by save-ref.
+
+Options (any command that runs or compares):
+  --filter <regex>           Only these benchmarks. The regex must match the WHOLE
+                             name, e.g. 'Parse HTML/.*', not '^Parse HTML/'.
+  --markdown                 Print comparison tables as Markdown.
+
+Examples:
+  Scripts/benchmark diff main
+  Scripts/benchmark diff main --filter 'Parse HTML/large.*'
+  Scripts/benchmark save before && ... && Scripts/benchmark compare before
+EOF
+}
+
+repo_root=$(cd "$(dirname "$0")/.." && pwd -P)
+worktree="$repo_root/.build/benchmark-worktree"
+export SWIFTRICHTEXT_BENCHMARK=1
+
+# Scratch files live here and are removed however the script exits, including
+# when a failed plugin run stops it under `set -e`.
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
+
+filter_args=()
+format_args=()
+positional=()
+
+parse_options() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --filter)
+                [ $# -ge 2 ] || die "--filter needs a regex"
+                filter_args+=(--filter "$2"); shift 2 ;;
+            --markdown)
+                format_args+=(--format markdown); shift ;;
+            -h | --help)
+                usage; exit 0 ;;
+            -*)
+                die "unknown option: $1" ;;
+            *)
+                positional+=("$1"); shift ;;
+        esac
+    done
+}
+
+die() {
+    echo "benchmark: $*" >&2
+    exit 1
+}
+
+# Baseline names become directory names; keep them to a safe character set.
+sanitize() {
+    printf '%s' "$1" | tr -c 'A-Za-z0-9._-' '-'
+}
+
+# `swift package benchmark` in <dir>, with the plugin allowed to write baselines.
+# ${arr[@]+"${arr[@]}"} expands empty arrays safely under `set -u` on bash 3.2.
+run_plugin() {
+    local dir="$1"; shift
+    (cd "$dir" && swift package --allow-writing-to-package-directory benchmark "$@" \
+        ${filter_args[@]+"${filter_args[@]}"} --no-progress)
+}
+
+# The plugin reports "Updated baseline" and exits 0 even when no benchmark ran,
+# which is what happens when --filter matches nothing: it applies the regex with
+# `wholeMatch`, so '^Parse HTML/' matches no name at all. Check for the files.
+#
+# <since> is a file touched before the run; only results newer than it count,
+# so an earlier baseline of the same name is not mistaken for this run's.
+require_baseline() {
+    local dir="$1" name="$2" since="$3"
+    local found
+    found=$(find "$dir/.benchmarkBaselines" -mindepth 3 -maxdepth 3 -path "*/$name/*" \
+        -name '*results.json' -newer "$since" 2>/dev/null || true)
+    [ -n "$found" ] && return 0
+    if [ ${#filter_args[@]} -gt 0 ]; then
+        die "no baseline was written: no benchmark name wholly matches --filter '${filter_args[1]}'." \
+            "Try 'Parse HTML/.*'. List names with: SWIFTRICHTEXT_BENCHMARK=1 swift package benchmark list"
+    fi
+    die "no baseline was written for '$name'"
+}
+
+save_working_tree() {
+    local name since="$scratch/since"
+    name=$(sanitize "$1")
+    touch "$since"
+    echo "==> Benchmarking the working tree as baseline '$name'"
+    run_plugin "$repo_root" baseline update "$name"
+    require_baseline "$repo_root" "$name" "$since"
+}
+
+# Git searches parent directories when a directory has no .git. Require both
+# the scratch worktree's own .git file and its registration in this repository.
+is_benchmark_worktree() {
+    [ -f "$worktree/.git" ] || return 1
+    [ "$(git -C "$worktree" rev-parse --show-toplevel 2>/dev/null)" = "$worktree" ] || return 1
+    git -C "$repo_root" worktree list --porcelain | grep -Fqx "worktree $worktree"
+}
+
+save_ref() {
+    local ref="$1"
+    local name
+    name=$(sanitize "${2:-$1}")
+    local sha
+    sha=$(git -C "$repo_root" rev-parse --verify --quiet "$ref^{commit}") \
+        || die "not a commit: $ref"
+
+    # One worktree, reused across runs, so its .build survives and later runs
+    # are incremental rather than a full rebuild of the benchmark dependencies.
+    # Prune first: if `rm -rf .build` deleted it, git still has it registered,
+    # and adding it again would leave a second, stale registration behind.
+    git -C "$repo_root" worktree prune
+    if [ -d "$worktree" ]; then
+        is_benchmark_worktree || die "invalid scratch worktree at $worktree; run Scripts/benchmark clean"
+        git -C "$worktree" checkout --quiet --detach "$sha"
+    else
+        git -C "$repo_root" worktree add --quiet --detach "$worktree" "$sha"
+    fi
+
+    echo "==> Benchmarking $ref ($(git -C "$repo_root" rev-parse --short "$sha")) as baseline '$name'"
+    rm -rf "$worktree/.benchmarkBaselines"
+    local since="$scratch/since"
+    touch "$since"
+    run_plugin "$worktree" baseline update "$name"
+    require_baseline "$worktree" "$name" "$since"
+
+    # Copy the result into the main checkout, where `compare` looks for it.
+    local target_dir target
+    for target_dir in "$worktree/.benchmarkBaselines"/*/"$name"; do
+        target=$(basename "$(dirname "$target_dir")")
+        mkdir -p "$repo_root/.benchmarkBaselines/$target"
+        rm -rf "$repo_root/.benchmarkBaselines/$target/$name"
+        cp -R "$target_dir" "$repo_root/.benchmarkBaselines/$target/$name"
+    done
+}
+
+compare() {
+    echo "==> Comparing $*"
+    run_plugin "$repo_root" baseline compare "$@" ${format_args[@]+"${format_args[@]}"}
+}
+
+command="${1:-}"
+[ -n "$command" ] || { usage; exit 1; }
+shift
+parse_options "$@"
+set -- ${positional[@]+"${positional[@]}"}
+
+case "$command" in
+    diff)
+        [ $# -ge 1 ] && [ $# -le 2 ] || die "usage: diff <ref> [<other-ref>]"
+        # A prefix keeps `diff main` from overwriting a baseline saved by hand
+        # as `main`.
+        first_name=$(sanitize "diff-$1")
+        if [ $# -eq 2 ]; then
+            second_name=$(sanitize "diff-$2")
+            if [ "$first_name" = "$second_name" ]; then
+                first_name="$first_name-1"
+                second_name="$second_name-2"
+            fi
+            save_ref "$1" "$first_name"
+            save_ref "$2" "$second_name"
+            compare "$first_name" "$second_name"
+        else
+            # With one baseline, the plugin runs the working tree and compares.
+            save_ref "$1" "$first_name"
+            compare "$first_name"
+        fi
+        ;;
+    save)
+        [ $# -eq 1 ] || die "usage: save <name>"
+        save_working_tree "$1"
+        ;;
+    save-ref)
+        [ $# -ge 1 ] && [ $# -le 2 ] || die "usage: save-ref <ref> [<name>]"
+        save_ref "$@"
+        ;;
+    compare)
+        [ $# -ge 1 ] && [ $# -le 2 ] || die "usage: compare <name> [<other>]"
+        names=()
+        for name in "$@"; do names+=("$(sanitize "$name")"); done
+        compare "${names[@]}"
+        ;;
+    list)
+        run_plugin "$repo_root" baseline list
+        ;;
+    delete)
+        [ $# -ge 1 ] || die "usage: delete <name>..."
+        names=()
+        for name in "$@"; do names+=("$(sanitize "$name")"); done
+        run_plugin "$repo_root" baseline delete "${names[@]}"
+        ;;
+    clean)
+        git -C "$repo_root" worktree prune
+        if [ -d "$worktree" ]; then
+            if is_benchmark_worktree; then
+                git -C "$repo_root" worktree remove --force "$worktree"
+            elif [ ! -e "$worktree/.git" ] && [ ! -L "$worktree/.git" ]; then
+                rm -rf "$worktree"
+            else
+                die "invalid scratch worktree at $worktree; remove it manually"
+            fi
+            echo "Removed $worktree"
+        fi
+        ;;
+    -h | --help | help)
+        usage
+        ;;
+    *)
+        usage; exit 1
+        ;;
+esac
