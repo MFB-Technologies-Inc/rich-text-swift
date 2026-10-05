@@ -310,8 +310,8 @@ Some more guidelines:
   why, and how you tested it. Link the issue it closes.
 
 CI runs SwiftFormat and SwiftLint and the tests on macOS and the iOS simulator, checks the layer
-boundaries, and builds the docs, the benchmarks and the Demo app. A pull request needs CI to pass and a maintainer's review before
-it's merged.
+boundaries, and builds the docs, the benchmarks and the Demo app. A pull request needs CI to pass
+and a maintainer's review before it's merged.
 
 By contributing, you agree that your contributions are licensed under the [MIT license](LICENSE).
 
