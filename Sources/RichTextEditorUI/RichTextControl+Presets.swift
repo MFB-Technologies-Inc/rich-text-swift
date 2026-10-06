@@ -12,9 +12,10 @@ extension [RichTextControl] {
         [.bold, .italic, .underline, .strikethrough, .textColor, .unorderedList, .orderedList]
     }
 
-    /// `default` plus the heading levels — the full v1 control set.
-    /// Headings are an HTML-document concept, which is why they live here
-    /// rather than in `default`.
+    /// Every control the HTML format can represent: `default` plus the
+    /// heading levels. Use it when you save documents with `RichTextHTML`.
+    /// It only ever holds controls that survive an HTML round trip, so
+    /// formatting added later that HTML can't hold stays out of it.
     public static var html: [RichTextControl] {
         `default` + [.heading(.h1), .heading(.h2), .heading(.h3)]
     }

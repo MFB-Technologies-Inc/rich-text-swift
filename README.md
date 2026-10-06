@@ -4,33 +4,34 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMFB-Technologies-Inc%2Frich-text-swift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/MFB-Technologies-Inc/rich-text-swift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMFB-Technologies-Inc%2Frich-text-swift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/MFB-Technologies-Inc/rich-text-swift)
 
-A native SwiftUI rich text editor for iOS, backed by `AttributedString`, that round-trips to clean,
-minimal HTML.
+A native SwiftUI rich text editor for iOS, built on TextKit 2 and `AttributedString`, with clean
+HTML import and export when you need it.
 
 ```swift
 import SwiftRichText
 
 struct NoteEditor: View {
-    @State private var document = RichTextHTML.decode("<p>Hello</p>")
+    @State private var document = AttributedString()
 
     var body: some View {
         RichTextEditor(text: $document)
-            .richTextToolbar(.html)
+            .richTextToolbar()
     }
 }
 ```
 
 ## Why
 
-Most rich text on iOS is either a `WKWebView` pretending to be an editor, or `NSAttributedString`'s
-built-in HTML conversion — which emits hundreds of bytes of inline CSS for a bold word. SwiftRichText
-is real TextKit 2, and its documents serialize to HTML a human would write:
-
-```html
-<h1>Title</h1>
-<ul><li>first</li><li><b>second</b></li></ul>
-<p>Body text with <span style="color:#ff3b30">color</span>.</p>
-```
+- **A real editor.** `RichTextEditor` is TextKit 2 under the hood, not a `WKWebView` pretending to
+  be one, so selection, the keyboard, undo and accessibility behave like the rest of iOS.
+- **SwiftUI-native.** It binds a plain `AttributedString`. Your document is a value you own, store
+  and diff like any other state.
+- **Meaning, not styling.** The document records *what* text is (a heading, a numbered list item,
+  bold), not fonts and point sizes, so it renders correctly in Dark Mode and Dynamic Type and
+  survives a redesign.
+- **Saves without ceremony.** `Codable` out of the box, with a stable format, and clean HTML a human
+  would write when another client needs to read it, instead of the hundreds of bytes of inline CSS
+  `NSAttributedString`'s HTML export emits for one bold word.
 
 ## Requirements
 
@@ -76,7 +77,7 @@ list in the order you want them:
 
 ```swift
 .richTextToolbar()                                   // .default — inline formatting plus lists
-.richTextToolbar(.html)                              // .default plus H1–H3
+.richTextToolbar(.html)                              // every control the HTML format can hold
 .richTextToolbar([.bold, .italic, .heading(.h1)])    // exactly these, in this order
 .richTextToolbar(.html, placement: .top)             // above the editor; .bottom is the default
 ```
@@ -85,45 +86,59 @@ A bottom-placed bar rides above the keyboard, since SwiftUI's keyboard safe area
 
 ### Persistence
 
-Two options, depending on whether you need portability or exactness.
+**Codable** is the default: lossless, with nothing to configure. The `richText` attribute scope
+encodes the document's formatting along with its text:
 
-**HTML** — the canonical format, and what you want if anything else will ever read the document:
+```swift
+struct Note: Codable {
+    @CodableConfiguration(from: \.richText) var body = AttributedString()
+}
+
+let data = try JSONEncoder().encode(note)                    // save
+let note = try JSONDecoder().decode(Note.self, from: data)   // load
+```
+
+The format is stable: block roles encode as `{"type":"heading","level":1}`-style objects and colors
+as `"#rrggbb"`, both hand-written rather than synthesized, so documents saved with one version of
+SwiftRichText decode with the next. A document saved by a newer version still opens in an older
+one: a block type it doesn't know decodes as a paragraph. A change to the format is a breaking
+change and will be called out in the release notes.
+
+Codable output is shaped by Foundation, so only Swift on Apple platforms can read it. If a web
+client, an Android app or a server needs to read or display your documents, use HTML.
+
+**HTML**, for when something other than your Apple app reads the document:
 
 ```swift
 let html = RichTextHTML.encode(document)      // save
 let document = RichTextHTML.decode(html)      // load
 ```
 
-HTML is deliberately *not* on the keystroke path: convert at your save and load boundaries only.
+Pair it with the `.html` toolbar preset. That preset holds exactly the controls the HTML format can
+represent, and stays that way as the editor gains formatting HTML can't hold, so a user can't make
+something that would be lost on save.
+
+Convert at your save and load boundaries only. HTML is deliberately *not* on the keystroke path.
 
 The dialect is small and closed: `<p>`, `<h1>`–`<h3>`, `<ul>`/`<ol>`/`<li>` (nested), `<b>`, `<i>`,
-`<u>`, `<s>`, and `<span style="color:#rrggbb">`. Import is tolerant — `<strong>`, `<em>`,
-`<strike>`, `<font color>`, CSS colors (hex, all named colors, `rgb()`/`rgba()`/`hsl()`), and
-entities are all normalized, and unknown tags are unwrapped so their text survives. Canonical documents satisfy `decode(encode(x)) == x`.
-A list item more than one level deeper than the item before it gets one `<li style="display:block">`
-per skipped level to hold the nested list, so the HTML stays valid and a browser draws no marker
-for the skipped level.
+`<u>`, `<s>`, and `<span style="color:#rrggbb">`:
+
+```html
+<h1>Title</h1>
+<ul><li>first</li><li><b>second</b></li></ul>
+<p>Body text with <span style="color:#ff3b30">color</span>.</p>
+```
+
+Import is tolerant: `<strong>`, `<em>`, `<strike>`, `<font color>`, CSS colors (hex, all named
+colors, `rgb()`/`rgba()`/`hsl()`) and entities are all normalized, and unknown tags are unwrapped
+so their text survives. Canonical documents satisfy `decode(encode(x)) == x`. A list item more than
+one level deeper than the item before it gets one `<li style="display:block">` per skipped level to
+hold the nested list, so the HTML stays valid and a browser draws no marker for the skipped level.
 
 Tags outside the dialect are text-preserving but attribute-dropping: a `<a href="...">link</a>`
 imports as the word *link* with no href, and an `<img alt="chart">` imports as the word *chart* (an
 `<img>` with no `alt` leaves nothing behind). Nothing silently disappears, but nothing outside the
-dialect survives a round trip either — links and images are post-v1 work.
-
-**Codable** — lossless, for when you own both ends (drafts, autosave, undo snapshots):
-
-```swift
-struct Note: Codable {
-    @CodableConfiguration(from: \.richText) var body = AttributedString()
-}
-```
-
-This keeps everything HTML normalizes away, at the cost of a Foundation-shaped blob no other client
-can read.
-
-The format is stable: block roles encode as `{"type":"heading","level":1}`-style objects and colors
-as `"#rrggbb"`, both hand-written rather than synthesized, so documents saved with one version of
-SwiftRichText decode with the next. A change to it is a breaking change and will be called out in
-the release notes.
+dialect survives a round trip either. Links and images are post-v1 work.
 
 ## What v1 supports
 
