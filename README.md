@@ -116,7 +116,20 @@ let document = RichTextHTML.decode(html)      // load
 
 Pair it with the `.html` toolbar preset. That preset holds exactly the controls the HTML format can
 represent, and stays that way as the editor gains formatting HTML can't hold, so a user can't make
-something that would be lost on save.
+something that would be lost on save:
+
+```swift
+import SwiftRichText
+
+struct NoteEditor: View {
+    @State private var document = RichTextHTML.decode("<p>Hello</p>")
+
+    var body: some View {
+        RichTextEditor(text: $document)
+            .richTextToolbar(.html)
+    }
+}
+```
 
 Convert at your save and load boundaries only. HTML is deliberately *not* on the keystroke path.
 
