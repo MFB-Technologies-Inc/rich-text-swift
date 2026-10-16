@@ -10,6 +10,7 @@ import SwiftUI
 enum DemoTab: Hashable {
     case editor
     case html
+    case markdown
     case load
 }
 
@@ -31,10 +32,20 @@ struct ContentView: View {
                 .tabItem { Label("HTML", systemImage: "chevron.left.forwardslash.chevron.right") }
                 .tag(DemoTab.html)
 
-            LoadTab { html in
+            MarkdownTab(document: document)
+                .tabItem { Label("Markdown", systemImage: "text.document") }
+                .tag(DemoTab.markdown)
+
+            LoadTab(load: { html in
                 document = RichTextHTML.decode(html)
                 selectedTab = .editor
-            }
+            }, loadMarkdown: { markdown in
+                // Scaffold for #42: no Markdown codec yet, so import as plain
+                // text verbatim. Markdown markers stay visible in the editor
+                // until this becomes `RichTextMarkdown.decode(markdown)`.
+                document = AttributedString(markdown)
+                selectedTab = .editor
+            })
             .tabItem { Label("Load", systemImage: "square.and.arrow.down") }
             .tag(DemoTab.load)
         }

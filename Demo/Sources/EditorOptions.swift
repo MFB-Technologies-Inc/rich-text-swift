@@ -19,6 +19,7 @@ struct EditorOptions: Hashable {
         case none = "None"
         case `default` = "Default"
         case html = "HTML"
+        case markdown = "Markdown (preview)"
         case inlineOnly = "Inline only"
         case headingsFirst = "Headings first"
 
@@ -32,6 +33,11 @@ struct EditorOptions: Hashable {
             case .none: nil
             case .default: .default
             case .html: .html
+            // Preview only: `.markdown` preset and the allowed-formatting
+            // profile land with #43. Until then this maps to `.default` so
+            // the option exists in the Demo without pretending Markdown
+            // mode already restricts formatting.
+            case .markdown: .default
             case .inlineOnly: [.bold, .italic, .underline, .strikethrough, .textColor]
             case .headingsFirst: [.heading(.h1), .heading(.h2), .heading(.h3), .bold, .unorderedList]
             }
