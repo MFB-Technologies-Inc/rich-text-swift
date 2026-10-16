@@ -19,4 +19,17 @@ extension [RichTextControl] {
     public static var html: [RichTextControl] {
         `default` + [.heading(.h1), .heading(.h2), .heading(.h3)]
     }
+
+    /// Every control Markdown can represent: `html` without underline and
+    /// text color, which have no Markdown form. Use it when you save
+    /// documents as Markdown. Like `html`, it only ever holds controls that
+    /// survive a round trip, so a user can't make formatting that is lost on
+    /// save.
+    ///
+    /// This only limits the bar. Underline or color that arrives some other
+    /// way, such as a rich paste, still shows in the editor and is dropped
+    /// on save.
+    public static var markdown: [RichTextControl] {
+        [.bold, .italic, .strikethrough, .unorderedList, .orderedList, .heading(.h1), .heading(.h2), .heading(.h3)]
+    }
 }
