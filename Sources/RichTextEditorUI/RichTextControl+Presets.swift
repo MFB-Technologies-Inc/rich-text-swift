@@ -22,7 +22,7 @@ extension [RichTextControl] {
 
     /// Every control Markdown can represent: `html` without underline and
     /// text color, which have no Markdown form. Use it when you save
-    /// documents as Markdown. Like `html`, it only ever holds controls that
+    /// documents with `RichTextMarkdown`. Like `html`, it only ever holds controls that
     /// survive a round trip, so a user can't make formatting that is lost on
     /// save.
     ///

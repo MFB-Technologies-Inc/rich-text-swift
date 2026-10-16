@@ -156,12 +156,13 @@ let markdown = RichTextMarkdown.encode(document)   // save
 let document = RichTextMarkdown.decode(markdown)   // load
 ```
 
-This is an editor that saves to Markdown, not a Markdown source editor: users see formatted text,
-never `**`. Output uses one canonical style (`**bold**`, `*italic*`, `~~strike~~`, `-` bullets, `1.`
-numbering, `#` headings, `>` quotes), so hand-written Markdown is reformatted on save. Underline and
-text color have no Markdown form and are dropped, and Markdown can't hold an empty paragraph, so
-blank lines collapse. Import is tolerant: code, tables, images and links keep their text. Canonical
-documents satisfy `decode(encode(x)) == x`; the conditions are documented on
+Pair it with the `.markdown` toolbar preset, which leaves out underline and text color since
+Markdown can't hold them. This is an editor that saves to Markdown, not a Markdown source editor:
+users see formatted text, never `**`. Output uses one canonical style (`**bold**`, `*italic*`,
+`~~strike~~`, `-` bullets, `1.` numbering, `#` headings, `>` quotes), so hand-written Markdown is
+reformatted on save. Underline and text color are dropped on save, and Markdown can't hold an empty
+paragraph, so blank lines collapse. Import is tolerant: code, tables, images and links keep their
+text. Canonical documents satisfy `decode(encode(x)) == x`; the conditions are documented on
 `RichTextMarkdown.encode`.
 
 Tags outside the dialect are text-preserving but attribute-dropping: a `<a href="...">link</a>`
