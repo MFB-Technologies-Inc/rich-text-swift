@@ -92,6 +92,14 @@ struct MarkdownDecoderTests {
         #expect(decode("- [ ] task") == Sem.block("[ ] task", ul0))
     }
 
+    @Test func htmlBlocksKeepTheirTextAndDropTheirTags() {
+        #expect(decode("a\n\n<div>\nx\n</div>\n\nb") == Sem.doc(Sem.block("a"), Sem.block("x"), Sem.block("b")))
+        #expect(decode("<details>\n<summary>S</summary>\n\nbody\n</details>") == Sem.doc(
+            Sem.block("S"), Sem.block("body")
+        ))
+        #expect(decode("<br>\n\nb") == Sem.block("b"))
+    }
+
     @Test func inlineHTMLTagsAreDroppedAndTheirTextKept() {
         #expect(decode("a <u>b</u> c") == Sem.block("a b c"))
     }

@@ -72,12 +72,27 @@ struct MarkdownEncoderTests {
     @Test func separatorKeepsCrossingSpansApart() {
         #expect(encode(MD.block(
             .paragraph, MD.run("ab", .bold), MD.run("c", .bold, .italic), MD.run("d", .italic)
-        )) == "**ab*c***<!-- -->*d*")
+        )) == "**ab<!-- -->*c***<!-- -->*d*")
     }
 
     @Test func separatorKeepsMarksNextToPunctuationFlanking() {
         #expect(encode(MD.block(.paragraph, MD.run("a"), MD.run("\"b\"", .bold), MD.run("c")))
             == "a<!-- -->**\"b\"**<!-- -->c")
+    }
+
+    /// Foundation's parser reads a non-ASCII symbol as neither punctuation
+    /// nor whitespace, while newer CommonMark reads it as punctuation, so a
+    /// mark next to one gets the separator either reading needs.
+    @Test(arguments: ["😀", "→", "€", "©"])
+    func separatorKeepsMarksNextToSymbolsFlanking(_ symbol: String) {
+        #expect(encode(MD.block(.paragraph, MD.run(symbol), MD.run("\"b\"", .bold), MD.run(symbol)))
+            == "\(symbol)<!-- -->**\"b\"**<!-- -->\(symbol)")
+    }
+
+    @Test func boldAndItalicOpenSeparatelyWhenTheInnerOneReopens() {
+        #expect(encode(MD.block(
+            .paragraph, MD.run("+", .bold, .italic), MD.run(" ~", .bold), MD.run("+", .bold, .italic)
+        )) == "**<!-- -->*+* \\~*+***")
     }
 
     @Test func edgeWhitespaceMovesOutsideTheMarks() {

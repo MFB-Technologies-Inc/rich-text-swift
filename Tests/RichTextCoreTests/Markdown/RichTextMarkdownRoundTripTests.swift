@@ -54,6 +54,25 @@ struct RichTextMarkdownRoundTripTests {
         expectRoundTrip(MD.block(.paragraph, MD.run("a"), MD.run("\"b\"", .bold, .strikethrough), MD.run("c")))
         expectRoundTrip(MD.block(.paragraph, MD.run("a", .strikethrough, .bold), MD.run("b")))
         expectRoundTrip(MD.block(.heading(2), MD.run("T", .italic), MD.run(" x")))
+        // A strikethrough beside a `*` run, which Foundation's parser reads
+        // inconsistently.
+        expectRoundTrip(MD.block(.paragraph, MD.run("(a)", .bold), MD.run("b", .strikethrough)))
+        expectRoundTrip(MD.block(.paragraph, MD.run("a", .strikethrough), MD.run("= q", .italic)))
+        expectRoundTrip(MD.block(.paragraph, MD.run("x"), MD.run("\"b\"", .bold, .strikethrough), MD.run("y")))
+        // A mid-word opener inside a mark still open.
+        expectRoundTrip(MD.block(
+            .paragraph,
+            MD.run("p", .bold, .italic),
+            MD.run(" x", .bold),
+            MD.run("q", .bold, .italic)
+        ))
+        // Italic reopening inside bold, between punctuation (rule of 3).
+        expectRoundTrip(MD.block(
+            .paragraph,
+            MD.run("+", .bold, .italic),
+            MD.run(" ~", .bold),
+            MD.run("+", .bold, .italic)
+        ))
     }
 
     @Test func tenItemsKeepTheirChildren() {
@@ -110,6 +129,7 @@ struct RichTextMarkdownRoundTripTests {
     private static let words = [
         "a", "Bc", "x1", "é", "\"q\"", "(p)", "*", "**", "_", "#", "1.", "2)", "-", "+", ">", "=",
         "~", "~~", "`", "[l]", "<t>", "&amp;", "a|b", "\\", "!", "a-b", "--", "***", "x.", "9",
+        "😀", "→", "€", "©", "a\u{00A0}b", "(😀)",
     ]
 
     private static func randomDocument(_ random: inout SplitMix64) -> AttributedString {
@@ -159,9 +179,16 @@ struct RichTextMarkdownRoundTripTests {
             }
             if let previousMarks {
                 // A gap carries only the marks on both sides, so no mark
-                // starts or ends on whitespace.
-                let gap = !isHeading && random.next(0 ... 5) == 0 ? "\u{2028}" : " "
-                block += MD.run(gap, marks: previousMarks.intersection(marks))
+                // starts or ends on whitespace. No gap at all puts a mark
+                // boundary mid-word, next to whatever the words end with.
+                switch random.next(0 ... 5) {
+                case 0 where !isHeading:
+                    block += MD.run("\u{2028}", marks: previousMarks.intersection(marks))
+                case 1:
+                    break
+                default:
+                    block += MD.run(" ", marks: previousMarks.intersection(marks))
+                }
             }
             block += MD.run(words[random.next(0 ... words.count - 1)], marks: marks)
             previousMarks = marks

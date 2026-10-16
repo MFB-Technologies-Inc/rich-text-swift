@@ -38,6 +38,8 @@ public enum RichTextMarkdown {
     /// - **No soft line break at a block's edge, and no mark that starts or
     ///   ends on whitespace or a soft line break.** `**a **` is not bold in
     ///   Markdown, so the encoder moves such whitespace outside the mark.
+    ///   This includes U+00A0 (nbsp), which Markdown also counts as
+    ///   whitespace there, though it is kept as text everywhere else.
     public static func encode(_ attributedString: AttributedString) -> String {
         MarkdownEncoder.encode(attributedString)
     }

@@ -41,6 +41,15 @@ public enum BlockStyle: Codable, Hashable, Sendable {
 }
 
 extension BlockStyle {
+    /// The deepest heading level the model holds. Codecs clamp to
+    /// `1...maxHeadingLevel` on the way in and out.
+    package static let maxHeadingLevel = 3
+
+    /// `level` clamped to the heading levels the model holds.
+    package static func clampedHeadingLevel(_ level: Int) -> Int {
+        min(max(level, 1), maxHeadingLevel)
+    }
+
     /// The role of an empty block from the blocks on either side of it. An
     /// empty block has no characters to carry a role, so
     /// one between two items of the same list (same kind and depth) is an empty

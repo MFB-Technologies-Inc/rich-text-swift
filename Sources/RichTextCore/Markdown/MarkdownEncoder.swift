@@ -30,7 +30,7 @@ enum MarkdownEncoder {
             case .paragraph:
                 text = MarkdownInlineEncoder.encode(content, heading: false, continuation: "")
             case let .heading(level):
-                let hashes = String(repeating: "#", count: min(max(level, 1), 3))
+                let hashes = String(repeating: "#", count: BlockStyle.clampedHeadingLevel(level))
                 text = hashes + " " + MarkdownInlineEncoder.encode(content, heading: true, continuation: "")
             case .blockquote:
                 text = "> " + MarkdownInlineEncoder.encode(content, heading: false, continuation: "> ")

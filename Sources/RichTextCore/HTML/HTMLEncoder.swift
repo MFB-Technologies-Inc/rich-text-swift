@@ -20,7 +20,7 @@ enum HTMLEncoder {
                 lists.segments.append("<p>\(inline)</p>")
             case let .heading(level):
                 lists.closeAll()
-                let clamped = min(max(level, 1), 3)
+                let clamped = BlockStyle.clampedHeadingLevel(level)
                 lists.segments.append("<h\(clamped)>\(inline)</h\(clamped)>")
             case .blockquote:
                 // A quote is a top-level block like <p>: it ends any open

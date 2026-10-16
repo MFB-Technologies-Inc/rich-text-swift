@@ -66,61 +66,44 @@ enum MarkdownInlineEncoder {
             open += opening
             let closeText = closing.map(\.delimiter).joined()
             let openText = opening.map(\.delimiter).joined()
+            // Each mark's delimiter as its own run, when `***` would misparse.
+            let openingRuns = innerMarkReopens(opening, from: index, in: segments)
+                ? opening.map(\.delimiter)
+                : sameCharacterRuns(openText)
             var lineStart = atLineStart && closeText.isEmpty && openText.isEmpty
             let body = body(segment.characters, heading: heading, continuation: continuation, atLineStart: &lineStart)
             atLineStart = lineStart
 
-            out += delimiters(closing: closeText, opening: openText, after: out.last, before: body) + body
+            out += delimiters(
+                closing: closeText,
+                opening: openingRuns,
+                after: out.last,
+                before: body
+            ) + body
         }
         out += open.reversed().map(\.delimiter).joined()
         return out
     }
 
-    /// The closing and opening runs at one segment boundary, with `separator`
-    /// wherever a run would not be flanking. A closing run can't follow
-    /// whitespace, and after punctuation it must be followed by whitespace or
-    /// punctuation. An opening run can't be followed by whitespace, and
-    /// before punctuation it must follow whitespace or punctuation. Two runs
-    /// of the same character that touch merge into one. The separator's `<`
-    /// and `>` are punctuation, so placing it next to the offending side
-    /// satisfies each rule without adding text.
-    ///
-    /// Crossing marks are what put a run next to whitespace: in `**a *b**
-    /// c*`, bold ends inside italic, so italic closes and reopens there, just
-    /// before the space.
-    private static func delimiters(
-        closing: String,
-        opening: String,
-        after previous: Character?,
-        before body: String
-    ) -> String {
-        var out = ""
-        if !closing.isEmpty {
-            // Marks never end at the start of a line (they are trimmed off
-            // soft line breaks), so this is never the line's first text.
-            if previous?.isWhitespace == true {
-                out += separator
-            }
-            out += closing
-            let merges = !opening.isEmpty && closing.last == opening.first
-            let next = merges ? "<" : (opening.first ?? body.first)
-            let beforeLastRun = characterBeforeLastRun(of: closing) ?? out.dropLast(closing.count).last ?? previous
-            if merges || (isPunctuation(beforeLastRun) && isWord(next)) {
-                out += separator
-            }
+    /// Whether bold and italic open together here and the inner one reopens
+    /// before the outer one closes, as in `***a* (b)*c***`. Written as one
+    /// `***` run, the reopening `*` (punctuation on both sides, so it can
+    /// open or close) may close the outer mark instead: CommonMark's rule of 3
+    /// allows a 1-long closer to match what is left of a 3-long opener. As
+    /// separate `**` and `*` runs it can't, since 2 + 1 is a multiple of 3.
+    private static func innerMarkReopens(_ opening: [Mark], from index: Int, in segments: [Segment]) -> Bool {
+        guard opening.contains(.bold), opening.contains(.italic) else {
+            return false
         }
-        if !opening.isEmpty {
-            let bodyStartsWithWhitespace = body.first?.isWhitespace == true
-            let afterFirstRun = characterAfterFirstRun(of: opening) ?? (bodyStartsWithWhitespace ? "<" : body.first)
-            if isPunctuation(afterFirstRun), isWord(out.last ?? previous) {
-                out += separator
-            }
-            out += opening
-            if bodyStartsWithWhitespace {
-                out += separator
-            }
+        let boldEnd = end(of: .bold, from: index, in: segments)
+        let italicEnd = end(of: .italic, from: index, in: segments)
+        guard boldEnd != italicEnd else {
+            return false
         }
-        return out
+        let (inner, innerEnd, outerEnd) = boldEnd < italicEnd
+            ? (Mark.bold, boldEnd, italicEnd)
+            : (Mark.italic, italicEnd, boldEnd)
+        return segments[innerEnd ..< outerEnd].contains { $0.marks.contains(inner) }
     }
 
     /// The block's characters grouped into runs of equal marks. Soft line
@@ -239,38 +222,5 @@ enum MarkdownInlineEncoder {
             atLineStart = false
         }
         return out
-    }
-
-    /// In `**~~`, the `~~` run comes after punctuation.
-    private static func characterBeforeLastRun(of delimiters: String) -> Character? {
-        guard let last = delimiters.last else {
-            return nil
-        }
-        return delimiters.dropLast(delimiters.reversed().prefix { $0 == last }.count).last
-    }
-
-    /// In `~~**`, the `~~` run comes before punctuation.
-    private static func characterAfterFirstRun(of delimiters: String) -> Character? {
-        guard let first = delimiters.first else {
-            return nil
-        }
-        return delimiters.drop { $0 == first }.first
-    }
-
-    /// CommonMark punctuation, read broadly: anything that is neither a
-    /// letter, a digit nor whitespace. Reading too much as punctuation only
-    /// adds a harmless separator.
-    private static func isPunctuation(_ character: Character?) -> Bool {
-        guard let character else {
-            return false
-        }
-        return !character.isWhitespace && !character.isLetter && !character.isNumber
-    }
-
-    private static func isWord(_ character: Character?) -> Bool {
-        guard let character else {
-            return false
-        }
-        return character.isLetter || character.isNumber
     }
 }

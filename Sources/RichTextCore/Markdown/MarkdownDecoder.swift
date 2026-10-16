@@ -35,11 +35,19 @@ enum MarkdownDecoder {
     }
 
     private struct Block {
+        enum Kind {
+            case text
+            /// One paragraph per line.
+            case code
+            /// Raw HTML source, decoded with `RichTextHTML`.
+            case html
+        }
+
         /// The parser's identity for the block this text belongs to, so runs
         /// of one paragraph (or one table row) join into one model block.
         var key: Int?
         var style: BlockStyle
-        var isCode: Bool
+        var kind: Kind
         var text: AttributedString
     }
 
@@ -54,7 +62,8 @@ enum MarkdownDecoder {
         ) {
             // A rule has no text the model could hold, and inline HTML is
             // markup rather than text (this also drops the encoder's
-            // `<!-- -->` separator).
+            // `<!-- -->` separator). An HTML *block* may hold text, so it is
+            // kept for `finish()` to decode.
             if components.contains(where: { $0.kind == .thematicBreak }) || inline.contains(.inlineHTML) {
                 return
             }
@@ -79,31 +88,31 @@ enum MarkdownDecoder {
                 }
                 blocks[blocks.count - 1].text += piece
             } else {
-                blocks.append(Block(
-                    key: key,
-                    style: Self.style(of: components),
-                    isCode: components.contains { Self.isCodeBlock($0.kind) },
-                    text: piece
-                ))
+                let kind: Block.Kind = if inline.contains(.blockHTML) {
+                    .html
+                } else if components.contains(where: { Self.isCodeBlock($0.kind) }) {
+                    .code
+                } else {
+                    .text
+                }
+                blocks.append(Block(key: key, style: Self.style(of: components), kind: kind, text: piece))
             }
             lastCell = cell
         }
 
         mutating func appendParagraph(_ text: String) {
-            blocks.append(Block(key: nil, style: .paragraph, isCode: false, text: AttributedString(text)))
+            blocks.append(Block(key: nil, style: .paragraph, kind: .text, text: AttributedString(text)))
         }
 
         /// Joins blocks with bare `\n` separators. A code block becomes one
-        /// paragraph per line. Empty blocks are dropped: Markdown can't hold
-        /// one, so there is nothing to keep.
+        /// paragraph per line, and an HTML block becomes whatever
+        /// `RichTextHTML.decode` makes of it, so its text survives and its tags
+        /// don't. Empty blocks are dropped: Markdown can't hold one, so there
+        /// is nothing to keep.
         func finish() -> AttributedString {
             var result = AttributedString()
             for block in blocks {
-                let lines = block.isCode
-                    ? String(block.text.characters).split(separator: "\n").map { AttributedString(String($0)) }
-                    : [block.text]
-                for var line in lines where !line.characters.isEmpty {
-                    line.blockStyle = block.style
+                for line in lines(of: block) where !line.characters.isEmpty {
                     if !result.characters.isEmpty {
                         result += AttributedString("\n")
                     }
@@ -111,6 +120,28 @@ enum MarkdownDecoder {
                 }
             }
             return result
+        }
+
+        private func lines(of block: Block) -> [AttributedString] {
+            switch block.kind {
+            case .text:
+                var line = block.text
+                line.blockStyle = block.style
+                return [line]
+            case .code:
+                return String(block.text.characters).split(separator: "\n").map {
+                    var line = AttributedString(String($0))
+                    line.blockStyle = block.style
+                    return line
+                }
+            case .html:
+                // A block of nothing but breaks (a lone `<br>`) is spacing,
+                // which Markdown can't hold either.
+                let decoded = RichTextHTML.decode(String(block.text.characters))
+                return DocumentBlocks.split(decoded)
+                    .map { AttributedString(decoded[$0.slice]) }
+                    .filter { $0.characters.contains { !$0.isWhitespace } }
+            }
         }
 
         /// List membership wins over a quote around it, since the flat model
@@ -124,7 +155,7 @@ enum MarkdownDecoder {
             }
             for component in components {
                 if case let .header(level) = component.kind {
-                    return .heading(min(max(level, 1), 3))
+                    return .heading(BlockStyle.clampedHeadingLevel(level))
                 }
             }
             return components.contains { $0.kind == .blockQuote } ? .blockquote : .paragraph
