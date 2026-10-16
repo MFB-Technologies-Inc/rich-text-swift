@@ -7,68 +7,52 @@
 import SwiftRichText
 import SwiftUI
 
-/// Scaffold for the live `RichTextMarkdown` output of the editor's document.
-///
-/// The Markdown codec does not exist yet (see #42), so this tab deliberately
-/// does not fake an encoding. It mirrors `HTMLTab`'s shape — round-trip checks
-/// plus the encoded text — so that when `RichTextMarkdown.encode`/`decode`
-/// land, this view only has to swap its placeholder rows for the real checks:
-///
-///     let markdown = RichTextMarkdown.encode(document)
-///     let decoded = RichTextMarkdown.decode(markdown)
-///     // decode(encode(doc)) == doc
-///     // encode(decode(markdown)) == markdown
-///
-/// Until then it shows the document's plain text and marks the codec as
-/// not yet implemented, so the Demo compiles and the missing piece is visible
-/// rather than silently absent.
+/// The live `RichTextMarkdown.encode` output of the editor's document, plus
+/// the two round-trip checks worth watching while editing.
 struct MarkdownTab: View {
     let document: AttributedString
 
     var body: some View {
+        let markdown = RichTextMarkdown.encode(document)
+        let decoded = RichTextMarkdown.decode(markdown)
         NavigationStack {
             List {
                 Section {
-                    PendingRow(title: "decode(encode(doc)) == doc")
-                    PendingRow(title: "encode(decode(markdown)) == markdown")
+                    CheckRow(
+                        title: "decode(encode(doc)) == doc",
+                        passes: decoded == document
+                    )
+                    CheckRow(
+                        title: "encode(decode(markdown)) == markdown",
+                        passes: RichTextMarkdown.encode(decoded) == markdown
+                    )
                 } header: {
                     Text("Round trip")
                 } footer: {
-                    Text("Pending RichTextMarkdown (#42). Checks will mirror the HTML tab once the codec lands.")
+                    Text(
+                        "Underline, text color and empty paragraphs have no Markdown form, " +
+                            "so a document using them fails the first check."
+                    )
                 }
-
                 Section {
-                    Text(plainText.isEmpty ? "(empty)" : plainText)
+                    Text(markdown.isEmpty ? "(empty)" : markdown)
                         .font(.system(.footnote, design: .monospaced))
                         .textSelection(.enabled)
                 } header: {
-                    Text("Document text")
+                    Text("Encoded Markdown")
                 } footer: {
-                    Text("Markdown encoding will replace this preview. \(document.characters.count) characters.")
+                    Text("\(markdown.utf8.count) bytes, \(document.characters.count) characters")
                 }
             }
             .navigationTitle("Markdown")
             .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-
-    private var plainText: String {
-        String(document.characters)
-    }
-}
-
-private struct PendingRow: View {
-    let title: String
-
-    var body: some View {
-        LabeledContent {
-            Image(systemName: "clock")
-                .foregroundStyle(.secondary)
-                .accessibilityLabel("Not yet implemented")
-        } label: {
-            Text(title)
-                .font(.system(.footnote, design: .monospaced))
-                .foregroundStyle(.secondary)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Copy", systemImage: "doc.on.doc") {
+                        UIPasteboard.general.string = markdown
+                    }
+                }
+            }
         }
     }
 }

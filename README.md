@@ -149,6 +149,21 @@ so their text survives. Canonical documents satisfy `decode(encode(x)) == x`. A 
 one level deeper than the item before it gets one `<li style="display:block">` per skipped level to
 hold the nested list, so the HTML stays valid and a browser draws no marker for the skipped level.
 
+**Markdown**, for apps that store notes as Markdown:
+
+```swift
+let markdown = RichTextMarkdown.encode(document)   // save
+let document = RichTextMarkdown.decode(markdown)   // load
+```
+
+This is an editor that saves to Markdown, not a Markdown source editor: users see formatted text,
+never `**`. Output uses one canonical style (`**bold**`, `*italic*`, `~~strike~~`, `-` bullets, `1.`
+numbering, `#` headings, `>` quotes), so hand-written Markdown is reformatted on save. Underline and
+text color have no Markdown form and are dropped, and Markdown can't hold an empty paragraph, so
+blank lines collapse. Import is tolerant: code, tables, images and links keep their text. Canonical
+documents satisfy `decode(encode(x)) == x`; the conditions are documented on
+`RichTextMarkdown.encode`.
+
 Tags outside the dialect are text-preserving but attribute-dropping: a `<a href="...">link</a>`
 imports as the word *link* with no href, and an `<img alt="chart">` imports as the word *chart* (an
 `<img>` with no `alt` leaves nothing behind). Nothing silently disappears, but nothing outside the
@@ -159,7 +174,7 @@ dialect survives a round trip either. Links and images are post-v1 work.
 Bold, italic, underline, strikethrough, text color, bulleted and numbered lists, and H1–H3.
 
 Deliberately not in v1, all additive later: links, highlight, blockquote, more heading levels, font
-size and family, soft breaks, Markdown, list indent/outdent authoring, and a macOS port. Known
+size and family, soft breaks, list indent/outdent authoring, and a macOS port. Known
 deferrals and defects are tracked in [GitHub Issues](https://github.com/MFB-Technologies-Inc/rich-text-swift/issues).
 
 ## Design
