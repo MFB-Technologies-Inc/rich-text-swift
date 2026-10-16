@@ -35,13 +35,25 @@ struct RichTextControlPresetsTests {
         ])
     }
 
-    @Test func neitherPresetContainsDuplicates() {
-        #expect(Set([RichTextControl].default).count == [RichTextControl].default.count)
-        #expect(Set([RichTextControl].html).count == [RichTextControl].html.count)
+    @Test func markdownIsHtmlWithoutUnderlineAndTextColorInTheSameOrder() {
+        #expect([RichTextControl].markdown == [RichTextControl].html.filter { control in
+            control != .underline && control != .textColor
+        })
+    }
+
+    @Test func noPresetContainsDuplicates() {
+        for preset in [[RichTextControl].default, .html, .markdown] {
+            #expect(Set(preset).count == preset.count)
+        }
     }
 
     @Test func everyControlInHtmlHasADistinctAccessibilityLabel() {
         let labels = [RichTextControl].html.map(\.accessibilityLabel)
+        #expect(Set(labels).count == labels.count)
+    }
+
+    @Test func everyControlInMarkdownHasADistinctAccessibilityLabel() {
+        let labels = [RichTextControl].markdown.map(\.accessibilityLabel)
         #expect(Set(labels).count == labels.count)
     }
 }

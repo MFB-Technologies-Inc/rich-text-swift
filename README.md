@@ -72,12 +72,13 @@ rather than falling back to a rich paste.
 
 ### The toolbar
 
-`.richTextToolbar(_:placement:)` renders the built-in controls. Two presets ship, or pass your own
+`.richTextToolbar(_:placement:)` renders the built-in controls. Three presets ship, or pass your own
 list in the order you want them:
 
 ```swift
 .richTextToolbar()                                   // .default — inline formatting plus lists
 .richTextToolbar(.html)                              // every control the HTML format can hold
+.richTextToolbar(.markdown)                          // .html without underline and text color
 .richTextToolbar([.bold, .italic, .heading(.h1)])    // exactly these, in this order
 .richTextToolbar(.html, placement: .top)             // above the editor; .bottom is the default
 ```

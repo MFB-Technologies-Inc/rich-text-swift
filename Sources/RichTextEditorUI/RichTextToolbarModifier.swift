@@ -92,6 +92,10 @@
         /// RichTextEditor(text: $document)
         ///     .richTextToolbar(.html)
         ///
+        /// // Only what Markdown can hold: no underline or text color.
+        /// RichTextEditor(text: $document)
+        ///     .richTextToolbar(.markdown)
+        ///
         /// // Above the editor instead of below.
         /// RichTextEditor(text: $document)
         ///     .richTextToolbar(.html, placement: .top)
@@ -107,7 +111,8 @@
         /// .unorderedList, .orderedList]` — seven controls, which also happens to
         /// fit a phone's width without scrolling. `.html` is `.default` plus
         /// `.heading(.h1)`, `.heading(.h2)`, `.heading(.h3)` — the full v1
-        /// control set.
+        /// control set. `.markdown` is `.html` without `.underline` and
+        /// `.textColor`, which Markdown can't represent.
         ///
         /// The bar sits below the editor and rides above the keyboard, since
         /// SwiftUI's keyboard safe area insets it.
