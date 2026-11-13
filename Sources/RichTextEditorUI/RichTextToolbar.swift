@@ -48,9 +48,9 @@
             guard model.isEditable else {
                 return
             }
-            // `.textColor` has no command of its own — the system picker's binding
-            // issues `.setTextColor(_:)` directly as the user picks, and picking
-            // black removes the color.
+            // `.textColor` and `.format` have no command of their own: the
+            // system picker's binding issues `.setTextColor(_:)` as the user
+            // picks, and each row of the format panel sends its own command.
             guard let command = control.command else {
                 return
             }
@@ -69,6 +69,8 @@
         private func button(for control: RichTextControl) -> some View {
             if control == .textColor {
                 TextColorControl(model: model, isActive: isActive(control))
+            } else if control == .format {
+                FormatPanelControl(model: model, isActive: isActive(control))
             } else {
                 Button {
                     tap(control)

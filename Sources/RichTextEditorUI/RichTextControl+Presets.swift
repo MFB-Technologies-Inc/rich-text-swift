@@ -12,11 +12,13 @@ extension [RichTextControl] {
         [.bold, .italic, .underline, .strikethrough, .textColor, .unorderedList, .orderedList]
     }
 
-    /// Every control the HTML format can represent: `default` plus the
-    /// heading levels. Use it when you save documents with `RichTextHTML`.
+    /// Every control the HTML format can represent: inline formatting and
+    /// lists, with text color and the heading levels in one `.format` panel.
+    /// Seven controls, so it fits a phone's width without scrolling even in a
+    /// padded layout. Use it when you save documents with `RichTextHTML`.
     /// It only ever holds controls that survive an HTML round trip, so
     /// formatting added later that HTML can't hold stays out of it.
     public static var html: [RichTextControl] {
-        `default` + [.heading(.h1), .heading(.h2), .heading(.h3)]
+        [.bold, .italic, .underline, .strikethrough, .unorderedList, .orderedList, .format]
     }
 }

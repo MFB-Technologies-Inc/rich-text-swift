@@ -17,8 +17,8 @@ import Testing
     @MainActor
     struct ToolbarHostingTests {
         /// Hosts a view in a real key window so SwiftUI actually lays it out.
-        private func host(_ view: some View) -> UIWindow {
-            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 393, height: 852))
+        private func host(_ view: some View, width: CGFloat = 393) -> UIWindow {
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: width, height: 852))
             window.rootViewController = UIHostingController(rootView: view)
             window.makeKeyAndVisible()
             window.layoutIfNeeded()
@@ -73,7 +73,7 @@ import Testing
         /// gaining even a single control still falls outside the tolerance.
         private static let layoutTolerance: CGFloat = 22
 
-        /// A tightened lower bound for the full ten-control bar. Unlike the
+        /// A tightened lower bound for the full `.html` bar. Unlike the
         /// former `allControls.count * 44` (a bare product ignoring spacing and
         /// padding), this is derived from the real formula, so a bar rendering
         /// one control short of the full set no longer clears it.
@@ -89,7 +89,7 @@ import Testing
             // A laid-out bar has real height; a crashed or empty one does not.
             #expect(try #require(window.rootViewController?.view.bounds.height) > 0)
             #expect(window.rootViewController?.view.subviews.isEmpty == false)
-            // Ten 44pt-tall controls give the scrolling row real content height —
+            // 44pt-tall controls give the scrolling row real content height —
             // the counterpart this test's assertion needs against the empty case
             // below (measured: ~52pt with padding, vs ~8pt of bare padding).
             let rootView = try #require(window.rootViewController?.view)
@@ -97,8 +97,23 @@ import Testing
             #expect(scrollView.contentSize.height > 44)
             // Height alone would still pass with only some controls rendered;
             // width scales with the control count, so a partial render (e.g. 3 of
-            // 10 controls) fails this even though it might pass the height check.
+            // 7 controls) fails this even though it might pass the height check.
             #expect(scrollView.contentSize.width > minimumFullBarContentWidth)
+        }
+
+        /// Issue #14: with one button per heading level, `.html` needed ~492pt
+        /// and its last controls sat off-screen behind a swipe nobody knew to
+        /// make. With headings and color in the format panel, the whole preset
+        /// (~348pt) fits a 375pt phone, and a 402pt one with 16pt host padding.
+        @Test(arguments: [375, 402 - 2 * 16] as [CGFloat])
+        func theHtmlPresetFitsAPhoneWidthWithoutScrolling(width: CGFloat) async throws {
+            let model = RichTextEditorModel()
+            let window = host(RichTextToolbar(controls: .html, model: model), width: width)
+            await settle()
+            window.layoutIfNeeded()
+            let rootView = try #require(window.rootViewController?.view)
+            let scrollView = try #require(findScrollView(rootView))
+            #expect(scrollView.contentSize.width <= window.bounds.width)
         }
 
         @Test func anEmptyControlSetIsHarmless() async throws {
@@ -209,7 +224,7 @@ import Testing
             // layout formula's prediction for seven controls (348pt), within a
             // tolerance far tighter than the 48pt gap to six controls (300pt) or
             // eight (396pt) — so this fails if the default preset ever gained or
-            // lost a control, or became `.html` (492pt) outright.
+            // lost a control.
             let expectedWidth = expectedContentWidth(forControlCount: [RichTextControl].default.count)
             #expect(abs(scrollView.contentSize.width - expectedWidth) < Self.layoutTolerance)
         }
