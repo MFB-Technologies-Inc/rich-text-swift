@@ -50,7 +50,8 @@ struct HTMLTab: View {
     }
 }
 
-private struct CheckRow: View {
+/// One round-trip check, shared by the HTML and Markdown tabs.
+struct CheckRow: View {
     let title: String
     let passes: Bool
 

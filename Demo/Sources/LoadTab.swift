@@ -7,8 +7,7 @@
 import SwiftUI
 
 /// Loads a built-in sample or hand-written HTML into the editor through
-/// `RichTextHTML.decode`, and Markdown through the Markdown load path
-/// (plain-text import until `RichTextMarkdown.decode` lands in #42).
+/// `RichTextHTML.decode`, and Markdown through `RichTextMarkdown.decode`.
 struct LoadTab: View {
     let load: (String) -> Void
     let loadMarkdown: (String) -> Void
@@ -82,10 +81,7 @@ struct LoadTab: View {
                 } header: {
                     Text("Custom Markdown")
                 } footer: {
-                    Text(
-                        "Until #42 lands this imports as plain text, so markers stay visible. " +
-                            "Swipe a Markdown sample left and tap Edit to copy it here."
-                    )
+                    Text("Swipe a Markdown sample left and tap Edit to copy it here.")
                 }
             }
             .navigationTitle("Load")

@@ -4,12 +4,8 @@
 // This source code is licensed under the MIT License (MIT) found in the
 // LICENSE file in the root directory of this source tree.
 
-/// Markdown documents that each exercise one area of Markdown mode.
-///
-/// Scaffold for #42: these strings are ready to feed `RichTextMarkdown.decode`
-/// once it exists. Until then the Load tab imports them as plain text, so the
-/// Markdown markers stay visible in the editor and the missing codec is
-/// obvious rather than silently dropping formatting.
+/// Markdown documents that each exercise one area of Markdown mode. The Load
+/// tab feeds them to `RichTextMarkdown.decode`.
 struct MarkdownSample: Identifiable {
     let name: String
     let summary: String

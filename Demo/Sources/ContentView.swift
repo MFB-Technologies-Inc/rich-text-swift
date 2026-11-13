@@ -40,10 +40,7 @@ struct ContentView: View {
                 document = RichTextHTML.decode(html)
                 selectedTab = .editor
             }, loadMarkdown: { markdown in
-                // Scaffold for #42: no Markdown codec yet, so import as plain
-                // text verbatim. Markdown markers stay visible in the editor
-                // until this becomes `RichTextMarkdown.decode(markdown)`.
-                document = AttributedString(markdown)
+                document = RichTextMarkdown.decode(markdown)
                 selectedTab = .editor
             })
             .tabItem { Label("Load", systemImage: "square.and.arrow.down") }
