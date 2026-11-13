@@ -89,9 +89,9 @@ import Testing
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
         }
 
-        @Test func aReadOnlyHeadingMenuDoesNothing() async {
+        @Test func aReadOnlyFormatPanelDoesNothing() async {
             let (_, model) = await hosted(isEditable: false)
-            HeadingMenuControl(model: model, isActive: false).select(.heading(.h1))
+            FormatPanelControl(model: model, isActive: false).select(.heading(.h1))
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
         }
 

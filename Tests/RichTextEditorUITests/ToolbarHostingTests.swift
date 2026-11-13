@@ -97,17 +97,18 @@ import Testing
             #expect(scrollView.contentSize.height > 44)
             // Height alone would still pass with only some controls rendered;
             // width scales with the control count, so a partial render (e.g. 3 of
-            // 8 controls) fails this even though it might pass the height check.
+            // 7 controls) fails this even though it might pass the height check.
             #expect(scrollView.contentSize.width > minimumFullBarContentWidth)
         }
 
         /// Issue #14: with one button per heading level, `.html` needed ~492pt
         /// and its last controls sat off-screen behind a swipe nobody knew to
-        /// make. Grouped into one menu, the whole preset (~396pt) fits an
-        /// iPhone 17's 402pt width.
-        @Test func theHtmlPresetFitsAnIPhone17WidthWithoutScrolling() async throws {
+        /// make. With headings and color in the format panel, the whole preset
+        /// (~348pt) fits a 375pt phone, and a 402pt one with 16pt host padding.
+        @Test(arguments: [375, 402 - 2 * 16] as [CGFloat])
+        func theHtmlPresetFitsAPhoneWidthWithoutScrolling(width: CGFloat) async throws {
             let model = RichTextEditorModel()
-            let window = host(RichTextToolbar(controls: .html, model: model), width: 402)
+            let window = host(RichTextToolbar(controls: .html, model: model), width: width)
             await settle()
             window.layoutIfNeeded()
             let rootView = try #require(window.rootViewController?.view)
@@ -223,7 +224,7 @@ import Testing
             // layout formula's prediction for seven controls (348pt), within a
             // tolerance far tighter than the 48pt gap to six controls (300pt) or
             // eight (396pt) — so this fails if the default preset ever gained or
-            // lost a control, or became `.html` (eight controls) outright.
+            // lost a control.
             let expectedWidth = expectedContentWidth(forControlCount: [RichTextControl].default.count)
             #expect(abs(scrollView.contentSize.width - expectedWidth) < Self.layoutTolerance)
         }

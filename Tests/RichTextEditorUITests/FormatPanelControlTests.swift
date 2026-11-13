@@ -1,4 +1,4 @@
-// HeadingMenuControlTests.swift
+// FormatPanelControlTests.swift
 // SwiftRichText
 //
 // This source code is licensed under the MIT License (MIT) found in the
@@ -15,7 +15,9 @@ import Testing
     import UIKit
 
     @MainActor
-    struct HeadingMenuControlTests {
+    struct FormatPanelControlTests {
+        private typealias Style = FormatPanelControl.Style
+
         private func attached(blockStyle: BlockStyle? = .paragraph) async -> (RichTextEditorModel, FakeEditorEngine) {
             let model = RichTextEditorModel()
             let engine = FakeEditorEngine()
@@ -25,52 +27,56 @@ import Testing
             return (model, engine)
         }
 
-        @Test func theMenuOffersBodyThenEveryHeadingLevelInOrder() {
-            #expect(HeadingMenuControl.Choice.allCases == [.body, .heading(.h1), .heading(.h2), .heading(.h3)])
-            #expect(HeadingMenuControl.Choice.allCases.map(\.title) == ["Body", "Heading 1", "Heading 2", "Heading 3"])
+        @Test func thePanelOffersBodyThenEveryHeadingLevelInOrder() {
+            #expect(Style.allCases == [.body, .heading(.h1), .heading(.h2), .heading(.h3)])
+            #expect(Style.allCases.map(\.title) == ["Body", "Heading 1", "Heading 2", "Heading 3"])
+        }
+
+        @Test func eachRowPreviewsItsThemeFont() {
+            #expect(Style.body.appearance == Theme.default.paragraph)
+            #expect(Style.heading(.h1).appearance == Theme.default.heading1)
+            #expect(Style.heading(.h2).appearance == Theme.default.heading2)
+            #expect(Style.heading(.h3).appearance == Theme.default.heading3)
         }
 
         @Test func pickingALevelSetsThatHeading() async {
             let (model, engine) = await attached()
-            let menu = HeadingMenuControl(model: model, isActive: false)
+            let panel = FormatPanelControl(model: model, isActive: false)
 
-            menu.select(.heading(.h2))
+            panel.select(.heading(.h2))
 
             #expect(engine.appliedCommands == [.setBlockStyle(.heading(2))])
         }
 
         @Test func pickingBodySetsAParagraph() async {
             let (model, engine) = await attached(blockStyle: .heading(1))
-            let menu = HeadingMenuControl(model: model, isActive: true)
+            let panel = FormatPanelControl(model: model, isActive: true)
 
-            menu.select(.body)
+            panel.select(.body)
 
             #expect(engine.appliedCommands == [.setBlockStyle(.paragraph)])
         }
 
-        @Test func theSelectedHeadingIsCheckedAndShownInTheLabel() async {
+        @Test func theSelectedHeadingIsChecked() async {
             let (model, _) = await attached(blockStyle: .heading(3))
-            let menu = HeadingMenuControl(model: model, isActive: true)
+            let panel = FormatPanelControl(model: model, isActive: true)
 
-            #expect(HeadingMenuControl.Choice.allCases.filter(menu.isChecked) == [.heading(.h3)])
-            #expect(menu.labelText == "H3")
+            #expect(Style.allCases.filter(panel.isChecked) == [.heading(.h3)])
         }
 
-        @Test func aParagraphChecksBodyAndShowsTheRestingLabel() async {
+        @Test func aParagraphChecksBody() async {
             let (model, _) = await attached(blockStyle: .paragraph)
-            let menu = HeadingMenuControl(model: model, isActive: false)
+            let panel = FormatPanelControl(model: model, isActive: false)
 
-            #expect(HeadingMenuControl.Choice.allCases.filter(menu.isChecked) == [.body])
-            #expect(menu.labelText == "H")
+            #expect(Style.allCases.filter(panel.isChecked) == [.body])
         }
 
         @Test func aListItemOrMixedSelectionChecksNothing() async {
             for blockStyle in [BlockStyle.listItem(.unordered, depth: 0), nil] {
                 let (model, _) = await attached(blockStyle: blockStyle)
-                let menu = HeadingMenuControl(model: model, isActive: false)
+                let panel = FormatPanelControl(model: model, isActive: false)
 
-                #expect(HeadingMenuControl.Choice.allCases.filter(menu.isChecked).isEmpty)
-                #expect(menu.labelText == "H")
+                #expect(Style.allCases.filter(panel.isChecked).isEmpty)
             }
         }
 
@@ -83,20 +89,20 @@ import Testing
             window.makeKeyAndVisible()
             window.layoutIfNeeded()
             await settle()
-            let menu = HeadingMenuControl(model: model, isActive: false)
+            let panel = FormatPanelControl(model: model, isActive: false)
 
-            menu.select(.heading(.h2))
+            panel.select(.heading(.h2))
             #expect(RichTextHTML.encode(model.text) == "<h2>hello</h2>")
-            #expect(RichTextControl.headings.isActive(in: model.formatState))
+            #expect(RichTextControl.format.isActive(in: model.formatState))
 
-            // Picking the level it already has leaves it alone, unlike the
+            // Picking the style it already has leaves it alone, unlike the
             // `.heading(_:)` toggle buttons.
-            menu.select(.heading(.h2))
+            panel.select(.heading(.h2))
             #expect(RichTextHTML.encode(model.text) == "<h2>hello</h2>")
 
-            menu.select(.body)
+            panel.select(.body)
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
-            #expect(RichTextControl.headings.isActive(in: model.formatState) == false)
+            #expect(RichTextControl.format.isActive(in: model.formatState) == false)
         }
     }
 #endif

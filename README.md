@@ -82,10 +82,11 @@ list in the order you want them:
 .richTextToolbar(.html, placement: .top)             // above the editor; .bottom is the default
 ```
 
-Headings come two ways: `.heading(.h1)` and friends are one toggle button per level, and
-`.headings` is a single button that opens a menu of every level. The `.html` preset uses
-`.headings` so its eight controls fit a phone's width at the toolbar's 44pt target size. When your
-own list is too wide for the screen, the bar scrolls horizontally.
+`.format` is a single "Aa" button that opens a panel of paragraph styles (body text and H1–H3)
+and text color, like the format panels in Notes and Pages. The `.html` preset uses it so its seven
+controls fit a phone's width at the toolbar's 44pt target size. To give headings and color their
+own buttons instead, list `.heading(.h1)` and friends and `.textColor` yourself. When your own list
+is too wide for the screen, the bar scrolls horizontally.
 
 A bottom-placed bar rides above the keyboard, since SwiftUI's keyboard safe area insets it.
 
