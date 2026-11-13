@@ -82,6 +82,11 @@ list in the order you want them:
 .richTextToolbar(.html, placement: .top)             // above the editor; .bottom is the default
 ```
 
+Headings come two ways: `.heading(.h1)` and friends are one toggle button per level, and
+`.headings` is a single button that opens a menu of every level. The `.html` preset uses
+`.headings` so its eight controls fit a phone's width at the toolbar's 44pt target size. When your
+own list is too wide for the screen, the bar scrolls horizontally.
+
 A bottom-placed bar rides above the keyboard, since SwiftUI's keyboard safe area insets it.
 
 ### Persistence

@@ -13,10 +13,12 @@ extension [RichTextControl] {
     }
 
     /// Every control the HTML format can represent: `default` plus the
-    /// heading levels. Use it when you save documents with `RichTextHTML`.
+    /// heading levels, grouped into one `.headings` menu so the eight
+    /// controls fit a phone's width without scrolling. Use it when you save
+    /// documents with `RichTextHTML`.
     /// It only ever holds controls that survive an HTML round trip, so
     /// formatting added later that HTML can't hold stays out of it.
     public static var html: [RichTextControl] {
-        `default` + [.heading(.h1), .heading(.h2), .heading(.h3)]
+        `default` + [.headings]
     }
 }

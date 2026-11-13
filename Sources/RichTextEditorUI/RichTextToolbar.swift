@@ -48,9 +48,9 @@
             guard model.isEditable else {
                 return
             }
-            // `.textColor` has no command of its own — the system picker's binding
-            // issues `.setTextColor(_:)` directly as the user picks, and picking
-            // black removes the color.
+            // `.textColor` and `.headings` have no command of their own: the
+            // system picker's binding issues `.setTextColor(_:)` as the user
+            // picks, and each heading menu item sends its own level's toggle.
             guard let command = control.command else {
                 return
             }
@@ -69,6 +69,8 @@
         private func button(for control: RichTextControl) -> some View {
             if control == .textColor {
                 TextColorControl(model: model, isActive: isActive(control))
+            } else if control == .headings {
+                HeadingMenuControl(model: model, isActive: isActive(control))
             } else {
                 Button {
                     tap(control)

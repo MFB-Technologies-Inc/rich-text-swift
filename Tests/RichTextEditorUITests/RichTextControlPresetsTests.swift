@@ -18,21 +18,19 @@ struct RichTextControlPresetsTests {
 
     @Test func defaultContainsNoHeadingControl() {
         let hasHeading = [RichTextControl].default.contains { control in
-            if case .heading = control {
-                return true
+            switch control {
+            case .heading, .headings: true
+            default: false
             }
-            return false
         }
         #expect(hasHeading == false)
     }
 
-    @Test func htmlStartsWithDefaultAndAddsExactlyTheThreeHeadingLevels() {
+    @Test func htmlStartsWithDefaultAndAddsOneHeadingMenu() {
         let html = [RichTextControl].html
         let defaults = [RichTextControl].default
         #expect(Array(html.prefix(defaults.count)) == defaults)
-        #expect(Array(html.dropFirst(defaults.count)) == [
-            .heading(.h1), .heading(.h2), .heading(.h3),
-        ])
+        #expect(Array(html.dropFirst(defaults.count)) == [.headings])
     }
 
     @Test func neitherPresetContainsDuplicates() {

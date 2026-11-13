@@ -85,6 +85,7 @@ struct RichTextControlTests {
         state.blockStyle = .listItem(.unordered, depth: 0)
         #expect(RichTextControl.unorderedList.isActive(in: state))
         #expect(RichTextControl.orderedList.isActive(in: state) == false)
+        #expect(RichTextControl.headings.isActive(in: state) == false)
 
         state.blockStyle = .listItem(.ordered, depth: 2)
         #expect(RichTextControl.orderedList.isActive(in: state))
@@ -99,9 +100,31 @@ struct RichTextControlTests {
         #expect(RichTextControl.heading(.h3).isActive(in: state) == false)
     }
 
+    @Test func theHeadingMenuSendsNoCommandOfItsOwn() {
+        #expect(RichTextControl.headings.command == nil)
+    }
+
+    @Test func theHeadingMenuIsActiveForEveryHeadingLevel() {
+        var state = FormatState()
+        for level in HeadingLevel.allCases {
+            state.blockStyle = .heading(level.rawValue)
+            #expect(RichTextControl.headings.isActive(in: state))
+            #expect(RichTextControl.activeHeadingLevel(in: state) == level)
+        }
+    }
+
+    @Test func theHeadingMenuIgnoresLevelsTheToolbarDoesNotOffer() {
+        // A decoded `<h5>` must not light up a menu that has no H5 entry.
+        var state = FormatState()
+        state.blockStyle = .heading(5)
+        #expect(RichTextControl.headings.isActive(in: state) == false)
+        #expect(RichTextControl.activeHeadingLevel(in: state) == nil)
+    }
+
     @Test func blockControlsAreInactiveForAParagraph() {
         var state = FormatState()
         state.blockStyle = .paragraph
+        #expect(RichTextControl.headings.isActive(in: state) == false)
         #expect(RichTextControl.heading(.h1).isActive(in: state) == false)
         #expect(RichTextControl.unorderedList.isActive(in: state) == false)
         #expect(RichTextControl.orderedList.isActive(in: state) == false)
@@ -112,6 +135,7 @@ struct RichTextControlTests {
         var state = FormatState()
         state.blockStyle = nil
         #expect(RichTextControl.heading(.h1).isActive(in: state) == false)
+        #expect(RichTextControl.headings.isActive(in: state) == false)
         #expect(RichTextControl.unorderedList.isActive(in: state) == false)
     }
 
@@ -124,7 +148,7 @@ struct RichTextControlTests {
         // neither — the system picker renders its own visual.
         let pairedControls: [RichTextControl] = [
             .bold, .italic, .underline, .strikethrough,
-            .unorderedList, .orderedList, .heading(.h1), .heading(.h2), .heading(.h3),
+            .unorderedList, .orderedList, .heading(.h1), .heading(.h2), .heading(.h3), .headings,
         ]
         for control in pairedControls {
             let hasSymbol = control.systemImage != nil
@@ -142,12 +166,14 @@ struct RichTextControlTests {
         #expect(RichTextControl.heading(.h1).textLabel == "H1")
         #expect(RichTextControl.heading(.h3).textLabel == "H3")
         #expect(RichTextControl.heading(.h1).systemImage == nil)
+        #expect(RichTextControl.headings.textLabel == "H")
+        #expect(RichTextControl.headings.systemImage == nil)
     }
 
     @Test func accessibilityLabelsAreDistinct() {
         let controls: [RichTextControl] = [
             .bold, .italic, .underline, .strikethrough, .textColor,
-            .unorderedList, .orderedList, .heading(.h1), .heading(.h2), .heading(.h3),
+            .unorderedList, .orderedList, .heading(.h1), .heading(.h2), .heading(.h3), .headings,
         ]
         let labels = Set(controls.map(\.accessibilityLabel))
         #expect(labels.count == controls.count)

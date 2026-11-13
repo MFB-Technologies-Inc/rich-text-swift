@@ -89,6 +89,12 @@ import Testing
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
         }
 
+        @Test func aReadOnlyHeadingMenuDoesNothing() async {
+            let (_, model) = await hosted(isEditable: false)
+            HeadingMenuControl(model: model, isActive: false).select(.heading(.h1))
+            #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
+        }
+
         /// A plain `Bool` is enough for live changes — no `Binding` required.
         /// When the consumer's value changes, its body re-evaluates, the editor is
         /// reconstructed, and `updateUIView` applies the new value to both the

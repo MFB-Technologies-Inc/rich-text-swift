@@ -32,6 +32,10 @@ public enum RichTextControl: Hashable, Sendable {
     case unorderedList
     case orderedList
     case heading(HeadingLevel)
+    /// One control that opens a menu of every heading level. It takes the
+    /// width of a single button where `.heading(_:)` takes one per level, and
+    /// shows the level of the selected block.
+    case headings
 }
 
 /// The mapping below is deliberately **internal**: its signatures name
@@ -41,11 +45,12 @@ public enum RichTextControl: Hashable, Sendable {
 extension RichTextControl {
     /// The command this control sends when tapped.
     ///
-    /// `nil` for `.textColor` alone: there is no fixed command to send because
-    /// the color comes from the system picker's own binding, which issues
-    /// `.setTextColor(_:)` directly as the user picks; picking
+    /// `nil` for the two controls that open a picker instead of acting on a
+    /// tap. `.textColor`'s color comes from the system picker's own binding,
+    /// which issues `.setTextColor(_:)` directly as the user picks; picking
     /// black is how the user removes the color, since the picker cannot bind
-    /// an optional.
+    /// an optional. `.headings` opens a menu whose items each send
+    /// `.toggleHeading(_:)` for their level.
     var command: FormatCommand? {
         switch self {
         case .bold: .toggleBold
@@ -56,6 +61,7 @@ extension RichTextControl {
         case .unorderedList: .toggleList(.unordered)
         case .orderedList: .toggleList(.ordered)
         case let .heading(level): .toggleHeading(level.rawValue)
+        case .headings: nil
         }
     }
 
@@ -72,7 +78,7 @@ extension RichTextControl {
         case .underline: return state.underline == .on
         case .strikethrough: return state.strikethrough == .on
         case .textColor: return state.textColor != nil && !state.isTextColorMixed
-        case .unorderedList, .orderedList, .heading:
+        case .unorderedList, .orderedList, .heading, .headings:
             guard let block = state.blockStyle else { return false }
             return matchesBlock(block)
         }
@@ -83,8 +89,19 @@ extension RichTextControl {
         case (.unorderedList, .listItem(.unordered, _)): true
         case (.orderedList, .listItem(.ordered, _)): true
         case let (.heading(level), .heading(blockLevel)): level.rawValue == blockLevel
+        case let (.headings, .heading(blockLevel)): HeadingLevel(rawValue: blockLevel) != nil
         default: false
         }
+    }
+
+    /// The heading level the selection is in, or `nil` for any other block
+    /// role or a selection spanning differing roles. `.headings` shows this
+    /// level in its label and checks it in its menu.
+    static func activeHeadingLevel(in state: FormatState) -> HeadingLevel? {
+        guard case let .heading(level) = state.blockStyle else {
+            return nil
+        }
+        return HeadingLevel(rawValue: level)
     }
 
     /// SF Symbol name, or `nil` for a control drawn as text (or, for
@@ -104,7 +121,7 @@ extension RichTextControl {
         case .orderedList: "list.number"
         // SF Symbols has no clean H1/H2/H3 equivalent, so headings are drawn
         // as text.
-        case .heading: nil
+        case .heading, .headings: nil
         }
     }
 
@@ -113,6 +130,9 @@ extension RichTextControl {
     var textLabel: String? {
         switch self {
         case let .heading(level): "H\(level.rawValue)"
+        // The resting label. While the selection is in a heading,
+        // `HeadingMenuControl` shows that level's label instead.
+        case .headings: "H"
         case .bold, .italic, .underline, .strikethrough,
              .textColor, .unorderedList, .orderedList: nil
         }
@@ -130,6 +150,7 @@ extension RichTextControl {
         case .unorderedList: "Bulleted list"
         case .orderedList: "Numbered list"
         case let .heading(level): "Heading \(level.rawValue)"
+        case .headings: "Heading"
         }
     }
 }
