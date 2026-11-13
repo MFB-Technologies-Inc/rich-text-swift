@@ -276,11 +276,11 @@ enum EngineCore {
     ) -> TypingAttributes {
         var attributes = typingAttributes(at: selection, in: text)
 
-        guard let pending = previous.blockStyle, selection.isCollapsed else { return attributes }
-        guard let newBlock = BlockScanner.blocks(of: text, intersecting: selection).first, newBlock.isEmpty else {
-            return attributes
-        }
-        guard let previousBlock = BlockScanner.blocks(of: text, intersecting: previousSelection).first,
+        guard let pending = previous.blockStyle,
+              selection.isCollapsed,
+              let newBlock = BlockScanner.blocks(of: text, intersecting: selection).first,
+              newBlock.isEmpty,
+              let previousBlock = BlockScanner.blocks(of: text, intersecting: previousSelection).first,
               previousBlock.location == newBlock.location
         else {
             return attributes
