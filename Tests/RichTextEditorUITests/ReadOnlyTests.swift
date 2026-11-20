@@ -89,9 +89,9 @@ import Testing
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
         }
 
-        @Test func aReadOnlyFormatPanelDoesNothing() async {
+        @Test func aReadOnlyParagraphStyleAndColorPanelDoesNothing() async {
             let (_, model) = await hosted(isEditable: false)
-            FormatPanelControl(model: model, isActive: false).select(.heading(.h1))
+            ParagraphStyleAndColorControl(model: model, isActive: false).select(.heading(.h1))
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
         }
 

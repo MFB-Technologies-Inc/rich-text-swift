@@ -19,17 +19,17 @@ struct RichTextControlPresetsTests {
     @Test func defaultContainsNoHeadingControl() {
         let hasHeading = [RichTextControl].default.contains { control in
             switch control {
-            case .heading, .format: true
+            case .heading, .paragraphStyleAndColor: true
             default: false
             }
         }
         #expect(hasHeading == false)
     }
 
-    @Test func htmlIsInlineAndListControlsThenTheFormatPanel() {
+    @Test func htmlIsInlineAndListControlsThenTheParagraphStyleAndColorPanel() {
         #expect([RichTextControl].html == [
             .bold, .italic, .underline, .strikethrough,
-            .unorderedList, .orderedList, .format,
+            .unorderedList, .orderedList, .paragraphStyleAndColor,
         ])
     }
 

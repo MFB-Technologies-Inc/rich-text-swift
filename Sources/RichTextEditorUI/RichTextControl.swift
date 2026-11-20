@@ -35,7 +35,7 @@ public enum RichTextControl: Hashable, Sendable {
     /// One "Aa" button that opens a panel of paragraph styles (body text and
     /// every heading level) and text color. It takes the width of a single
     /// button where `.heading(_:)` and `.textColor` take one each.
-    case format
+    case paragraphStyleAndColor
 }
 
 /// The mapping below is deliberately **internal**: its signatures name
@@ -49,8 +49,8 @@ extension RichTextControl {
     /// tap. `.textColor`'s color comes from the system picker's own binding,
     /// which issues `.setTextColor(_:)` directly as the user picks; picking
     /// black is how the user removes the color, since the picker cannot bind
-    /// an optional. `.format` opens a panel whose rows each send their own
-    /// command.
+    /// an optional. `.paragraphStyleAndColor` opens a panel whose rows each
+    /// send their own command.
     var command: FormatCommand? {
         switch self {
         case .bold: .toggleBold
@@ -61,7 +61,7 @@ extension RichTextControl {
         case .unorderedList: .toggleList(.unordered)
         case .orderedList: .toggleList(.ordered)
         case let .heading(level): .toggleHeading(level.rawValue)
-        case .format: nil
+        case .paragraphStyleAndColor: nil
         }
     }
 
@@ -80,7 +80,8 @@ extension RichTextControl {
         case .textColor: return state.textColor != nil && !state.isTextColorMixed
         // Lit when anything the panel sets is in effect, so the user can tell
         // from the bar that the selection carries a heading or a color.
-        case .format: return Self.activeHeadingLevel(in: state) != nil || Self.textColor.isActive(in: state)
+        case .paragraphStyleAndColor:
+            return Self.activeHeadingLevel(in: state) != nil || Self.textColor.isActive(in: state)
         case .unorderedList, .orderedList, .heading:
             guard let block = state.blockStyle else { return false }
             return matchesBlock(block)
@@ -124,7 +125,7 @@ extension RichTextControl {
         // as text.
         case .heading: nil
         // Draws as "Aa", the symbol Notes and Pages use for their format panels.
-        case .format: "textformat"
+        case .paragraphStyleAndColor: "textformat"
         }
     }
 
@@ -134,7 +135,7 @@ extension RichTextControl {
         switch self {
         case let .heading(level): "H\(level.rawValue)"
         case .bold, .italic, .underline, .strikethrough,
-             .textColor, .unorderedList, .orderedList, .format: nil
+             .textColor, .unorderedList, .orderedList, .paragraphStyleAndColor: nil
         }
     }
 
@@ -150,7 +151,7 @@ extension RichTextControl {
         case .unorderedList: "Bulleted list"
         case .orderedList: "Numbered list"
         case let .heading(level): "Heading \(level.rawValue)"
-        case .format: "Format"
+        case .paragraphStyleAndColor: "Format"
         }
     }
 }

@@ -103,7 +103,7 @@ import Testing
 
         /// Issue #14: with one button per heading level, `.html` needed ~492pt
         /// and its last controls sat off-screen behind a swipe nobody knew to
-        /// make. With headings and color in the format panel, the whole preset
+        /// make. With headings and color in the paragraph style and color panel, the whole preset
         /// (~348pt) fits a 375pt phone, and a 402pt one with 16pt host padding.
         @Test(arguments: [375, 402 - 2 * 16] as [CGFloat])
         func theHtmlPresetFitsAPhoneWidthWithoutScrolling(width: CGFloat) async throws {

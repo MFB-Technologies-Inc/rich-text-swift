@@ -1,4 +1,4 @@
-// FormatPanelControl.swift
+// ParagraphStyleAndColorControl.swift
 // SwiftRichText
 //
 // This source code is licensed under the MIT License (MIT) found in the
@@ -9,7 +9,7 @@
     import RichTextEngine
     import SwiftUI
 
-    /// The `.format` control: one 44pt "Aa" button that opens a popover of
+    /// The `.paragraphStyleAndColor` control: one 44pt "Aa" button that opens a popover of
     /// paragraph styles (body text and every heading level) and text color,
     /// the way Notes and Pages group them.
     ///
@@ -23,7 +23,7 @@
     /// back to a paragraph. That matches how a list with a checkmark reads,
     /// where the separate `.heading(_:)` buttons keep their toggle behavior.
     /// The popover stays open after a pick so the user can also set a color.
-    struct FormatPanelControl: View {
+    struct ParagraphStyleAndColorControl: View {
         let model: RichTextEditorModel
         let isActive: Bool
 
@@ -79,14 +79,14 @@
             Button {
                 isPresented = true
             } label: {
-                Image(systemName: RichTextControl.format.systemImage ?? "")
+                Image(systemName: RichTextControl.paragraphStyleAndColor.systemImage ?? "")
                     .font(.system(size: 17, weight: .medium))
                     .toolbarControlChrome(active: isActive)
             }
             .buttonStyle(.plain)
             .disabled(!model.isEditable)
-            .accessibilityLabel(RichTextControl.format.accessibilityLabel)
-            .accessibilityIdentifier(RichTextControl.format.accessibilityLabel)
+            .accessibilityLabel(RichTextControl.paragraphStyleAndColor.accessibilityLabel)
+            .accessibilityIdentifier(RichTextControl.paragraphStyleAndColor.accessibilityLabel)
             .accessibilityAddTraits(isActive ? [.isSelected] : [])
             .popover(isPresented: $isPresented) {
                 panel

@@ -1,4 +1,4 @@
-// FormatPanelControlTests.swift
+// ParagraphStyleAndColorControlTests.swift
 // SwiftRichText
 //
 // This source code is licensed under the MIT License (MIT) found in the
@@ -15,8 +15,8 @@ import Testing
     import UIKit
 
     @MainActor
-    struct FormatPanelControlTests {
-        private typealias Style = FormatPanelControl.Style
+    struct ParagraphStyleAndColorControlTests {
+        private typealias Style = ParagraphStyleAndColorControl.Style
 
         private func attached(blockStyle: BlockStyle? = .paragraph) async -> (RichTextEditorModel, FakeEditorEngine) {
             let model = RichTextEditorModel()
@@ -41,7 +41,7 @@ import Testing
 
         @Test func pickingALevelSetsThatHeading() async {
             let (model, engine) = await attached()
-            let panel = FormatPanelControl(model: model, isActive: false)
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
 
             panel.select(.heading(.h2))
 
@@ -50,7 +50,7 @@ import Testing
 
         @Test func pickingBodySetsAParagraph() async {
             let (model, engine) = await attached(blockStyle: .heading(1))
-            let panel = FormatPanelControl(model: model, isActive: true)
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: true)
 
             panel.select(.body)
 
@@ -59,14 +59,14 @@ import Testing
 
         @Test func theSelectedHeadingIsChecked() async {
             let (model, _) = await attached(blockStyle: .heading(3))
-            let panel = FormatPanelControl(model: model, isActive: true)
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: true)
 
             #expect(Style.allCases.filter(panel.isChecked) == [.heading(.h3)])
         }
 
         @Test func aParagraphChecksBody() async {
             let (model, _) = await attached(blockStyle: .paragraph)
-            let panel = FormatPanelControl(model: model, isActive: false)
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
 
             #expect(Style.allCases.filter(panel.isChecked) == [.body])
         }
@@ -74,7 +74,7 @@ import Testing
         @Test func aListItemOrMixedSelectionChecksNothing() async {
             for blockStyle in [BlockStyle.listItem(.unordered, depth: 0), nil] {
                 let (model, _) = await attached(blockStyle: blockStyle)
-                let panel = FormatPanelControl(model: model, isActive: false)
+                let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
 
                 #expect(Style.allCases.filter(panel.isChecked).isEmpty)
             }
@@ -89,11 +89,11 @@ import Testing
             window.makeKeyAndVisible()
             window.layoutIfNeeded()
             await settle()
-            let panel = FormatPanelControl(model: model, isActive: false)
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
 
             panel.select(.heading(.h2))
             #expect(RichTextHTML.encode(model.text) == "<h2>hello</h2>")
-            #expect(RichTextControl.format.isActive(in: model.formatState))
+            #expect(RichTextControl.paragraphStyleAndColor.isActive(in: model.formatState))
 
             // Picking the style it already has leaves it alone, unlike the
             // `.heading(_:)` toggle buttons.
@@ -102,7 +102,7 @@ import Testing
 
             panel.select(.body)
             #expect(RichTextHTML.encode(model.text) == "<p>hello</p>")
-            #expect(RichTextControl.format.isActive(in: model.formatState) == false)
+            #expect(RichTextControl.paragraphStyleAndColor.isActive(in: model.formatState) == false)
         }
     }
 #endif
