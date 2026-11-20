@@ -1,6 +1,9 @@
+# Lint tools, pinned so local checkouts and CI's Lint job run the same rules.
+# To upgrade: change a version here, run `mise install`, then `swiftformat .`
+# and `swiftlint`, and commit the version and any reformatting together.
 [tools]
-swiftformat = "latest"
-swiftlint = "latest"
+swiftformat = "0.64.6"
+swiftlint = "0.65.1"
 
 [tool_alias]
 swiftformat = 'asdf:https://github.com/MFB-Technologies-Inc/asdf-swiftformat'

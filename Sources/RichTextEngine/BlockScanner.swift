@@ -96,11 +96,11 @@ enum BlockScanner {
         pendingBlockStyle: BlockStyle?
     ) -> [DocumentBlock] {
         var result = blocks(of: text)
-        guard let pendingBlockStyle else { return result }
-        guard let caretBlock = blocks(of: text, intersecting: selection).first, caretBlock.isEmpty else {
-            return result
-        }
-        guard let index = result.firstIndex(where: { $0.location == caretBlock.location && $0.isEmpty }) else {
+        guard let pendingBlockStyle,
+              let caretBlock = blocks(of: text, intersecting: selection).first,
+              caretBlock.isEmpty,
+              let index = result.firstIndex(where: { $0.location == caretBlock.location && $0.isEmpty })
+        else {
             return result
         }
         result[index].style = pendingBlockStyle
