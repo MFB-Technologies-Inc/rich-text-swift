@@ -55,13 +55,7 @@
             /// How the editor draws this style, so each row previews it. The
             /// editor always uses `Theme.default` until theming is public.
             var appearance: Theme.BlockAttributes {
-                let theme = Theme.default
-                return switch self {
-                case .body: theme.paragraph
-                case .heading(.h1): theme.heading1
-                case .heading(.h2): theme.heading2
-                case .heading(.h3): theme.heading3
-                }
+                Theme.default.attributes(for: blockStyle)
             }
         }
 
@@ -110,7 +104,11 @@
                 Divider()
                     .padding(.vertical, 4)
                 HStack {
+                    // A fixed size like the style rows, so it doesn't scale
+                    // with Dynamic Type on its own.
                     Text("Color")
+                        .font(.system(size: Theme.default.paragraph.fontSize))
+                        .foregroundStyle(Color.primary)
                     Spacer()
                     TextColorControl(
                         model: model,
