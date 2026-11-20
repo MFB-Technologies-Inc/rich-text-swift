@@ -23,7 +23,8 @@
             // explicit black that no decoder normalized. The caret is in
             // `semanticText`, not the fragment, so no selection maps.
             let result = EngineCore.insert(
-                EngineCore.normalizedIngest(fragment, selection: .caret(at: 0))?.text ?? fragment,
+                EngineCore.normalizedIngest(fragment, selection: .caret(at: 0), allowing: allowedFormatting)?.text
+                    ?? fragment,
                 in: semanticText,
                 selection: selection,
                 typingAttributes: typingAttributes

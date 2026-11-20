@@ -21,6 +21,7 @@
         /// itself (`RichTextTextView.pasteAsPlainText`) rather than acted on
         /// here — `paste(_:)` is the text view's own responder method.
         let pasteAsPlainText: Bool
+        let allowedFormatting: RichTextFormatting
 
         /// The text view's own insets, shared so the placeholder overlay can line
         /// up with the first glyph rather than guessing.
@@ -51,6 +52,9 @@
             textView.textContainerInset = Self.containerInset
 
             let engine = UIKitEditorEngine(textView: textView)
+            // Before the first document, so it is stripped as it arrives.
+            engine.allowedFormatting = allowedFormatting
+            model.setAllowedFormatting(allowedFormatting)
             engine.text = text
             textView.engine = engine
             context.coordinator.attach(engine: engine)
@@ -80,6 +84,7 @@
                 textView.isEditable = isEditable
             }
             model.setEditable(isEditable)
+            model.setAllowedFormatting(allowedFormatting)
             context.coordinator.pushIfNeeded(text)
         }
     }

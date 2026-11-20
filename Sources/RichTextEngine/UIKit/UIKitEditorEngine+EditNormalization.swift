@@ -24,7 +24,8 @@
             return EngineCore.normalizedIngest(
                 edited,
                 selection: selection,
-                missingBlockStyle: startStyle ?? .paragraph
+                missingBlockStyle: startStyle ?? .paragraph,
+                allowing: allowedFormatting
             )
         }
     }

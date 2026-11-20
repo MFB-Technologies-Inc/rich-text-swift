@@ -170,8 +170,11 @@
                 // is already normalized, so it is kept as is (clamped by
                 // `render`) rather than mapped through `newValue`'s CRLFs.
                 let restoredSelection = selection
-                let normalizedValue = EngineCore.normalizedIngest(newValue, selection: restoredSelection)?
-                    .text ?? newValue
+                let normalizedValue = EngineCore.normalizedIngest(
+                    newValue,
+                    selection: restoredSelection,
+                    allowing: allowedFormatting
+                )?.text ?? newValue
                 guard normalizedValue != semanticText else {
                     return
                 }
@@ -196,6 +199,25 @@
             }
         }
 
+        public var allowedFormatting: RichTextFormatting = .all {
+            didSet {
+                guard allowedFormatting != oldValue else {
+                    return
+                }
+                // The `text` setter strips the document against the new
+                // profile and handles a real change like any replacement:
+                // re-render, fresh typing attributes, undo history cleared.
+                text = semanticText
+                // A caret's typing attributes may hold formatting the profile
+                // now excludes even when the document has none of it.
+                let stripped = EngineCore.strippingDisallowed(typingAttributes, allowing: allowedFormatting)
+                if stripped != typingAttributes {
+                    typingAttributes = stripped
+                    pushTypingAttributes()
+                }
+            }
+        }
+
         public var selection: TextSelection {
             get {
                 let range = textView.selectedRange
@@ -212,6 +234,9 @@
         }
 
         public func apply(_ command: FormatCommand) {
+            guard command.isAllowed(by: allowedFormatting) else {
+                return
+            }
             let before = undoSnapshot()
             let result = EngineCore.apply(
                 command,

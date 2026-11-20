@@ -54,7 +54,8 @@ RichTextEditor(
     text: $document,
     isEditable: permission == .write,   // read-only disables typing and the toolbar
     placeholder: "Enter text here",     // shown while the document is empty
-    pasteAsPlainText: true              // strip formatting from pasted content
+    pasteAsPlainText: true,             // strip formatting from pasted content
+    allowedFormatting: .markdown        // keep documents to what Markdown can save
 )
 ```
 
@@ -69,6 +70,14 @@ screen while the saved document drops them, so what the user sees is not what ge
 option on, pasted text adopts the caret's own block role and inline formatting, Windows line endings
 become block separators, and a pasteboard holding no text at all — an image, say — inserts nothing
 rather than falling back to a rich paste.
+
+`allowedFormatting` keeps the document to the formatting your save format can hold: `.all` (the
+default), `.html` or `.markdown`, or your own set such as
+`RichTextFormatting.all.subtracting(.headings)`. Formatting outside it never reaches the document,
+however it arrives: the toolbar hides its controls (even when given a wider preset), and pastes,
+drag and drop and the bound document are stripped of it, text kept. A disallowed heading, list item
+or quote becomes a paragraph. Only line endings are written back on open, so stripping doesn't mark
+a document as changed; the user's next edit publishes it.
 
 ### The toolbar
 
@@ -156,14 +165,14 @@ let markdown = RichTextMarkdown.encode(document)   // save
 let document = RichTextMarkdown.decode(markdown)   // load
 ```
 
-Pair it with the `.markdown` toolbar preset, which leaves out underline and text color since
-Markdown can't hold them. This is an editor that saves to Markdown, not a Markdown source editor:
-users see formatted text, never `**`. Output uses one canonical style (`**bold**`, `*italic*`,
-`~~strike~~`, `-` bullets, `1.` numbering, `#` headings, `>` quotes), so hand-written Markdown is
-reformatted on save. Underline and text color are dropped on save, and Markdown can't hold an empty
-paragraph, so blank lines collapse. Import is tolerant: code, tables, images and links keep their
-text. Canonical documents satisfy `decode(encode(x)) == x`; the conditions are documented on
-`RichTextMarkdown.encode`.
+Pair it with `allowedFormatting: .markdown` and the `.markdown` toolbar preset. Together they keep
+underline and text color, which Markdown can't hold, out of the editor, so what the user sees is
+what gets saved. This is an editor that saves to Markdown, not a Markdown source editor: users see
+formatted text, never `**`. Output uses one canonical style (`**bold**`, `*italic*`, `~~strike~~`,
+`-` bullets, `1.` numbering, `#` headings, `>` quotes), so hand-written Markdown is reformatted on
+save. Markdown can't hold an empty paragraph, so blank lines collapse. Import is tolerant: code,
+tables, images and links keep their text. Canonical documents satisfy `decode(encode(x)) == x`; the
+conditions are documented on `RichTextMarkdown.encode`.
 
 Tags outside the dialect are text-preserving but attribute-dropping: a `<a href="...">link</a>`
 imports as the word *link* with no href, and an `<img alt="chart">` imports as the word *chart* (an

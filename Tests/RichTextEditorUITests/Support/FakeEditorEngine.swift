@@ -16,6 +16,7 @@ final class FakeEditorEngine: EditorEngine {
     var selection = TextSelection.caret(at: 0)
     var typingAttributes = TypingAttributes()
     var formatState = FormatState()
+    var allowedFormatting = RichTextFormatting.all
 
     private(set) var appliedCommands: [FormatCommand] = []
     private(set) var newlineCount = 0
