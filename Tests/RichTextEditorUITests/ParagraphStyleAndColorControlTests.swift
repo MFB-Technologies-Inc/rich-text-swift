@@ -80,6 +80,32 @@ import Testing
             }
         }
 
+        @Test func everyRowShowsByDefault() async {
+            let (model, _) = await attached()
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
+
+            #expect(panel.styles == Style.allCases)
+            #expect(panel.showsColor)
+        }
+
+        @Test func markdownKeepsTheHeadingsAndDropsColor() async {
+            let (model, _) = await attached()
+            model.setAllowedFormatting(.markdown)
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
+
+            #expect(panel.styles == Style.allCases)
+            #expect(!panel.showsColor)
+        }
+
+        @Test func aProfileWithoutHeadingsOffersOnlyBody() async {
+            let (model, _) = await attached()
+            model.setAllowedFormatting(RichTextFormatting.all.subtracting(.headings))
+            let panel = ParagraphStyleAndColorControl(model: model, isActive: false)
+
+            #expect(panel.styles == [.body])
+            #expect(panel.showsColor)
+        }
+
         @Test func anEndToEndPickReachesTheDocument() async {
             let model = RichTextEditorModel()
             let root = RichTextEditor(text: .constant(RichTextHTML.decode("<p>hello</p>")))

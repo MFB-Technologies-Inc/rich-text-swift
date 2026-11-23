@@ -96,11 +96,32 @@
             }
         }
 
+        /// The style rows the editor's `RichTextFormatting` allows: just
+        /// "Body" when it excludes headings.
+        var styles: [Style] {
+            model.allowedFormatting.contains(.headings) ? Style.allCases : [.body]
+        }
+
+        /// Whether the panel offers a text color, which `.markdown` excludes.
+        var showsColor: Bool {
+            model.allowedFormatting.contains(.textColor)
+        }
+
         private var panel: some View {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(Style.allCases, id: \.self) { style in
+                ForEach(styles, id: \.self) { style in
                     styleRow(style)
                 }
+                if showsColor {
+                    colorRow
+                }
+            }
+            .padding(.vertical, 8)
+            .frame(width: 260)
+        }
+
+        private var colorRow: some View {
+            VStack(alignment: .leading, spacing: 0) {
                 Divider()
                     .padding(.vertical, 4)
                 HStack {
@@ -117,8 +138,6 @@
                 }
                 .padding(.horizontal, 16)
             }
-            .padding(.vertical, 8)
-            .frame(width: 260)
         }
 
         private func styleRow(_ style: Style) -> some View {

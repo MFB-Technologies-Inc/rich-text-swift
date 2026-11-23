@@ -87,7 +87,7 @@ list in the order you want them:
 ```swift
 .richTextToolbar()                                   // .default — inline formatting plus lists
 .richTextToolbar(.html)                              // every control the HTML format can hold
-.richTextToolbar(.markdown)                          // .html without underline and text color
+.richTextToolbar(.markdown)                          // .html without underline; the Aa panel drops Color
 .richTextToolbar([.bold, .italic, .heading(.h1)])    // exactly these, in this order
 .richTextToolbar(.html, placement: .top)             // above the editor; .bottom is the default
 ```
