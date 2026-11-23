@@ -73,6 +73,28 @@ import Testing
             RichTextHTML.encode(engine.text)
         }
 
+        /// Undo history from before a narrower profile must not bring back
+        /// what the profile now disallows. Here nothing is left to strip, so
+        /// the `text` setter has no replacement to clear history for.
+        @Test func undoAfterNarrowingTheProfileCannotRestoreDisallowedFormatting() {
+            let (textView, engine, window) = editor("<p>hello</p>")
+            step(textView) {
+                engine.selection = TextSelection(location: 0, length: 5)
+                engine.apply(.toggleUnderline)
+            }
+            step(textView) {
+                engine.apply(.toggleUnderline)
+            }
+            #expect(!engine.text.runs.contains { $0.underline == true })
+
+            engine.allowedFormatting = .markdown
+            textView.undoManager?.undo()
+
+            #expect(!engine.text.runs.contains { $0.underline == true })
+            #expect(textView.undoManager?.canUndo == false)
+            _ = window
+        }
+
         @Test func boldIsUndoable() {
             let (textView, engine, window) = editor("<p>hello</p>")
             let before = engine.text

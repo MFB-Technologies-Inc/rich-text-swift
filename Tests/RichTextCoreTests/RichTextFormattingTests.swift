@@ -20,12 +20,20 @@ struct RichTextFormattingTests {
         }
     }
 
-    @Test func htmlAllowsEverythingTheModelHoldsToday() {
-        #expect(RichTextFormatting.html == .all)
+    /// Pinned member by member, so an option added to `all` later has to be
+    /// added to each format's profile on purpose.
+    @Test func htmlHoldsExactlyWhatHTMLCanSave() {
+        #expect(RichTextFormatting.html == [
+            .bold, .italic, .underline, .strikethrough, .textColor,
+            .headings, .bulletedLists, .numberedLists, .blockquotes,
+        ])
     }
 
-    @Test func markdownIsAllWithoutUnderlineAndTextColor() {
-        #expect(RichTextFormatting.markdown == RichTextFormatting.all.subtracting([.underline, .textColor]))
+    @Test func markdownHoldsExactlyWhatMarkdownCanSave() {
+        #expect(RichTextFormatting.markdown == [
+            .bold, .italic, .strikethrough,
+            .headings, .bulletedLists, .numberedLists, .blockquotes,
+        ])
     }
 
     @Test func paragraphsAreAlwaysAllowed() {

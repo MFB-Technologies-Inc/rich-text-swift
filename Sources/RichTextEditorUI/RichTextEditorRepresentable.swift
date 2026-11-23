@@ -84,7 +84,14 @@
                 textView.isEditable = isEditable
             }
             model.setEditable(isEditable)
+            // Stripping is never written back, so the binding may still hold
+            // formatting a narrower profile hid. Widening lets it through again,
+            // so the bound document is pushed again below.
+            let previousFormatting = model.allowedFormatting
             model.setAllowedFormatting(allowedFormatting)
+            if !previousFormatting.isSuperset(of: allowedFormatting) {
+                context.coordinator.forgetAdoptedDocument()
+            }
             context.coordinator.pushIfNeeded(text)
         }
     }
@@ -225,6 +232,16 @@
             model.setText(incoming)
             lastPublished = engine.text
             writeBackNormalizationIfNeeded(for: incoming, normalized: engine.text)
+        }
+
+        /// Makes the next `pushIfNeeded(_:)` hand the bound document to the
+        /// engine even if it already adopted it, so a widened formatting
+        /// profile shows formatting a narrower one stripped.
+        func forgetAdoptedDocument() {
+            lastAdopted = nil
+            // Still the bound document when nothing has been published since
+            // it was adopted, which would make the push look like an echo.
+            lastPublished = nil
         }
 
         private func writeBackNormalizationIfNeeded(for incoming: AttributedString, normalized: AttributedString) {

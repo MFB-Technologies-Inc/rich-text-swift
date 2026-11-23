@@ -51,10 +51,54 @@ import Testing
             #expect(toolbar.visibleControls == [RichTextControl].markdown)
         }
 
+        /// Stripping isn't written back, so the binding still holds what a
+        /// narrower profile hid; widening the profile again shows it.
+        @Test func wideningTheProfileAgainRestoresTheBoundFormatting() async {
+            let settings = FormattingSettings()
+            let model = RichTextEditorModel()
+            let root = FormattingWrapper(
+                settings: settings,
+                document: RichTextHTML.decode("<p><u>u</u></p>"),
+                model: model
+            )
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 393, height: 852))
+            window.rootViewController = UIHostingController(rootView: root)
+            window.makeKeyAndVisible()
+            await settle()
+            #expect(model.text.runs.first?.underline == true)
+
+            settings.formatting = .markdown
+            await settle()
+            window.layoutIfNeeded()
+            await settle()
+            #expect(model.text.runs.first?.underline == nil)
+
+            settings.formatting = .all
+            await settle()
+            window.layoutIfNeeded()
+            await settle()
+            #expect(model.text.runs.first?.underline == true)
+        }
+
         /// ⌘B, ⌘I and ⌘U come from `allowsEditingTextAttributes`; with it off
         /// the text view offers no formatting that skips the profile.
         @Test func theTextViewOffersNoFormattingShortcuts() {
             #expect(RichTextTextView().allowsEditingTextAttributes == false)
+        }
+    }
+
+    @Observable final class FormattingSettings {
+        var formatting = RichTextFormatting.all
+    }
+
+    struct FormattingWrapper: View {
+        let settings: FormattingSettings
+        let document: AttributedString
+        let model: RichTextEditorModel
+
+        var body: some View {
+            RichTextEditor(text: .constant(document), allowedFormatting: settings.formatting)
+                .richTextToolbar(.html, model: model)
         }
     }
 #endif

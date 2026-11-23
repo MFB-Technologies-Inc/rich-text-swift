@@ -46,13 +46,20 @@ public struct RichTextFormatting: OptionSet, Hashable, Sendable {
         .headings, .bulletedLists, .numberedLists, .blockquotes,
     ]
 
-    /// Everything `RichTextHTML` can save. That is all of today's formatting;
-    /// formatting added later that HTML can't hold stays out of it.
-    public static let html: RichTextFormatting = all
+    /// Everything `RichTextHTML` can save. Listed member by member rather
+    /// than derived from `all`, so formatting added later joins it only when
+    /// HTML can hold it.
+    public static let html: RichTextFormatting = [
+        .bold, .italic, .underline, .strikethrough, .textColor,
+        .headings, .bulletedLists, .numberedLists, .blockquotes,
+    ]
 
-    /// Everything `RichTextMarkdown` can save: `all` without underline and
-    /// text color, which have no Markdown form.
-    public static let markdown: RichTextFormatting = all.subtracting([.underline, .textColor])
+    /// Everything `RichTextMarkdown` can save. Underline and text color have
+    /// no Markdown form. Listed member by member, like `html`.
+    public static let markdown: RichTextFormatting = [
+        .bold, .italic, .strikethrough,
+        .headings, .bulletedLists, .numberedLists, .blockquotes,
+    ]
 
     /// Whether a block may have `style`. A paragraph always may: it is what a
     /// disallowed role becomes.
