@@ -46,7 +46,8 @@ struct EditorTab: View {
             text: $document,
             isEditable: options.isEditable,
             placeholder: options.placeholder.isEmpty ? nil : options.placeholder,
-            pasteAsPlainText: options.pasteAsPlainText
+            pasteAsPlainText: options.pasteAsPlainText,
+            allowedFormatting: options.formatting.value
         )
         Group {
             if let controls = options.toolbar.controls {
@@ -69,6 +70,11 @@ private struct OptionsSheet: View {
                 Section("Editor") {
                     Toggle("Editable", isOn: $options.isEditable)
                     Toggle("Paste as plain text", isOn: $options.pasteAsPlainText)
+                    Picker("Allowed formatting", selection: $options.formatting) {
+                        ForEach(EditorOptions.Formatting.allCases) { formatting in
+                            Text(formatting.rawValue).tag(formatting)
+                        }
+                    }
                     TextField("Placeholder (empty for none)", text: $options.placeholder)
                 }
                 Section("Toolbar") {

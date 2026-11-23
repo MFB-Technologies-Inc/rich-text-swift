@@ -53,6 +53,9 @@ final class InMemoryEditorEngine: EditorEngine {
     /// The selection `typingAttributes` was last derived against — mirrors
     /// `UIKitEditorEngine.lastAttributesSelection`.
     private var lastAttributesSelection = TextSelection.caret(at: 0)
+    /// Stored only: profile enforcement is `UIKitEditorEngine`'s, covered by
+    /// `UIKitEditorEngineFormattingProfileTests`.
+    var allowedFormatting = RichTextFormatting.all
 
     var text: AttributedString {
         get { storage }

@@ -59,6 +59,28 @@ extension RichTextControl {
         }
     }
 
+    /// The formatting this control applies. The toolbar shows the control
+    /// only when the editor's `RichTextFormatting` allows it.
+    var formatting: RichTextFormatting {
+        switch self {
+        case .bold: .bold
+        case .italic: .italic
+        case .underline: .underline
+        case .strikethrough: .strikethrough
+        case .textColor: .textColor
+        case .unorderedList: .bulletedLists
+        case .orderedList: .numberedLists
+        case .heading: .headings
+        }
+    }
+
+    /// `controls` without those `allowed` excludes, in the order given. This
+    /// is how `.richTextToolbar(.html)` on an editor allowing `.markdown`
+    /// shows only Markdown's controls.
+    static func visible(_ controls: [RichTextControl], allowing allowed: RichTextFormatting) -> [RichTextControl] {
+        controls.filter { allowed.isSuperset(of: $0.formatting) }
+    }
+
     /// Whether this control renders as active for the given selection.
     ///
     /// `.mixed` reads as inactive alongside `.off`: the engine

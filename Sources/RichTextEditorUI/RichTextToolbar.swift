@@ -29,7 +29,7 @@
                     // Identified by position, not value: a consumer may legitimately
                     // declare the same control twice, and identical `id`s would
                     // collide in `ForEach`.
-                    ForEach(Array(controls.enumerated()), id: \.offset) { _, control in
+                    ForEach(Array(visibleControls.enumerated()), id: \.offset) { _, control in
                         button(for: control)
                     }
                 }
@@ -37,6 +37,11 @@
                 .padding(.vertical, 4)
             }
             .background(.bar)
+        }
+
+        /// The declared controls the editor's `RichTextFormatting` allows.
+        var visibleControls: [RichTextControl] {
+            RichTextControl.visible(controls, allowing: model.allowedFormatting)
         }
 
         /// Sends a control's command through the view model. This is both the

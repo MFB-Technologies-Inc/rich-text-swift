@@ -170,7 +170,8 @@
                 // is already normalized, so it is kept as is (clamped by
                 // `render`) rather than mapped through `newValue`'s CRLFs.
                 let restoredSelection = selection
-                let normalizedValue = EngineCore.normalizedIngest(newValue, selection: restoredSelection)?
+                let normalizedValue = EngineCore
+                    .normalizedIngest(newValue, selection: restoredSelection, allowing: allowedFormatting)?
                     .text ?? newValue
                 guard normalizedValue != semanticText else {
                     return
@@ -196,6 +197,15 @@
             }
         }
 
+        public var allowedFormatting: RichTextFormatting = .all {
+            didSet {
+                guard allowedFormatting != oldValue else {
+                    return
+                }
+                applyAllowedFormatting(replacing: oldValue)
+            }
+        }
+
         public var selection: TextSelection {
             get {
                 let range = textView.selectedRange
@@ -212,6 +222,9 @@
         }
 
         public func apply(_ command: FormatCommand) {
+            guard command.isAllowed(by: allowedFormatting) else {
+                return
+            }
             let before = undoSnapshot()
             let result = EngineCore.apply(
                 command,
@@ -373,32 +386,6 @@
             return separated
         }
 
-        private func clearUndoHistoryWhenSafe() {
-            guard let undoManager = textView.undoManager else { return }
-            if undoManager.groupingLevel == 0 {
-                if let undoClose = notificationTokens.undoClose {
-                    NotificationCenter.default.removeObserver(undoClose)
-                    notificationTokens.undoClose = nil
-                }
-                undoManager.removeAllActions()
-                return
-            }
-            guard notificationTokens.undoClose == nil else { return }
-            // Notification delivery is synchronous with UIKit closing the
-            // group. There is no run-loop interval in which old undo history
-            // remains available after the group has closed.
-            notificationTokens.undoClose = NotificationCenter.default.addObserver(
-                forName: .NSUndoManagerDidCloseUndoGroup,
-                object: undoManager,
-                queue: nil
-            ) { [weak self, weak undoManager] _ in
-                MainActor.assumeIsolated {
-                    guard let self, let undoManager, undoManager.groupingLevel == 0 else { return }
-                    self.clearUndoHistoryWhenSafe()
-                }
-            }
-        }
-
         /// Re-derives typing attributes for the current selection from the
         /// semantic document already held in memory — no `NSAttributedString`
         /// conversion, so this is cheap enough to call on every caret move. See
@@ -522,6 +509,38 @@
                 return
             }
             layoutManager.invalidateLayout(for: documentRange)
+        }
+    }
+
+    /// In an extension so the class body stays within its length limit, and
+    /// in this file because `EditorNotificationTokens` is private to it.
+    extension UIKitEditorEngine {
+        /// Clears the undo history once UIKit has closed any group it is in.
+        /// Clearing inside an open group would unbalance UIKit's close.
+        func clearUndoHistoryWhenSafe() {
+            guard let undoManager = textView.undoManager else { return }
+            if undoManager.groupingLevel == 0 {
+                if let undoClose = notificationTokens.undoClose {
+                    NotificationCenter.default.removeObserver(undoClose)
+                    notificationTokens.undoClose = nil
+                }
+                undoManager.removeAllActions()
+                return
+            }
+            guard notificationTokens.undoClose == nil else { return }
+            // Notification delivery is synchronous with UIKit closing the
+            // group. There is no run-loop interval in which old undo history
+            // remains available after the group has closed.
+            notificationTokens.undoClose = NotificationCenter.default.addObserver(
+                forName: .NSUndoManagerDidCloseUndoGroup,
+                object: undoManager,
+                queue: nil
+            ) { [weak self, weak undoManager] _ in
+                MainActor.assumeIsolated {
+                    guard let self, let undoManager, undoManager.groupingLevel == 0 else { return }
+                    self.clearUndoHistoryWhenSafe()
+                }
+            }
         }
     }
 #endif

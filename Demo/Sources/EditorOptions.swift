@@ -11,6 +11,7 @@ import SwiftRichText
 struct EditorOptions: Hashable {
     var isEditable = true
     var pasteAsPlainText = false
+    var formatting = Formatting.all
     var placeholder = "Enter text here"
     var toolbar = ToolbarPreset.html
     var placement = Placement.bottom
@@ -36,6 +37,24 @@ struct EditorOptions: Hashable {
             case .markdown: .markdown
             case .inlineOnly: [.bold, .italic, .underline, .strikethrough, .textColor]
             case .headingsFirst: [.heading(.h1), .heading(.h2), .heading(.h3), .bold, .unorderedList]
+            }
+        }
+    }
+
+    enum Formatting: String, CaseIterable, Identifiable {
+        case all = "All"
+        case html = "HTML"
+        case markdown = "Markdown"
+
+        var id: Self {
+            self
+        }
+
+        var value: RichTextFormatting {
+            switch self {
+            case .all: .all
+            case .html: .html
+            case .markdown: .markdown
             }
         }
     }

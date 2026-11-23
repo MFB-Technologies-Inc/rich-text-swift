@@ -34,6 +34,12 @@ final class RichTextEditorModel {
     /// share.
     private(set) var isEditable = true
 
+    /// The formatting the editor allows, from
+    /// `RichTextEditor(text:allowedFormatting:)`. The toolbar reads it to hide
+    /// controls; the engine, which it is forwarded to, enforces it. It lives
+    /// here for the same reason as `isEditable`.
+    private(set) var allowedFormatting = RichTextFormatting.all
+
     private var engine: (any EditorEngine)?
 
     /// Coalesces `scheduleRefresh()`: set the instant a hop is pending, so N
@@ -64,6 +70,7 @@ final class RichTextEditorModel {
     /// engine — exists.
     func attach(_ engine: any EditorEngine) {
         self.engine = engine
+        engine.allowedFormatting = allowedFormatting
         // Reached from `makeUIView`/`setModel(_:)`, both inside the view-update
         // phase — see `scheduleRefresh()`.
         scheduleRefresh()
@@ -78,6 +85,18 @@ final class RichTextEditorModel {
             return
         }
         isEditable = editable
+    }
+
+    /// Applied by the representable on every update pass, so a no-op when
+    /// unchanged, like `setEditable(_:)`. Narrowing the profile strips the
+    /// engine's document, which changes the selection's formatting.
+    func setAllowedFormatting(_ formatting: RichTextFormatting) {
+        guard formatting != allowedFormatting else {
+            return
+        }
+        allowedFormatting = formatting
+        engine?.allowedFormatting = formatting
+        scheduleRefresh()
     }
 
     func apply(_ command: FormatCommand) {

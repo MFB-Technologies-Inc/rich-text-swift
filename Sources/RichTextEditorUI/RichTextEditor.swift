@@ -41,6 +41,7 @@
         private let isEditable: Bool
         private let placeholder: String?
         private let pasteAsPlainText: Bool
+        private let allowedFormatting: RichTextFormatting
 
         /// - Parameters:
         ///   - isEditable: `false` renders the document read-only: typing and
@@ -57,16 +58,26 @@
         ///     survive and are drawn in the editor's own theme; a source with no
         ///     HTML pastes as plain text. With the option on, a pasteboard
         ///     holding no text at all (an image, say) inserts nothing.
+        ///   - allowedFormatting: The formatting the editor keeps the document
+        ///     to; everything by default. Pick the profile of the format you
+        ///     save to (`.markdown`, `.html`) so what the user sees is what
+        ///     gets saved. Anything outside it is stripped from the bound
+        ///     document and from pastes, text kept, and the toolbar hides its
+        ///     controls. Stripping doesn't write back to `text` on its own,
+        ///     so opening a document doesn't mark it changed; the user's next
+        ///     edit publishes the stripped document.
         public init(
             text: Binding<AttributedString>,
             isEditable: Bool = true,
             placeholder: String? = nil,
-            pasteAsPlainText: Bool = false
+            pasteAsPlainText: Bool = false,
+            allowedFormatting: RichTextFormatting = .all
         ) {
             _text = text
             self.isEditable = isEditable
             self.placeholder = placeholder
             self.pasteAsPlainText = pasteAsPlainText
+            self.allowedFormatting = allowedFormatting
         }
 
         /// Whether the placeholder should be visible for a given document.
@@ -94,7 +105,8 @@
                 text: $text,
                 model: model,
                 isEditable: isEditable,
-                pasteAsPlainText: pasteAsPlainText
+                pasteAsPlainText: pasteAsPlainText,
+                allowedFormatting: allowedFormatting
             )
             .overlay(alignment: .topLeading) {
                 if Self.showsPlaceholder(placeholder: placeholder, in: text, blockStyle: model.formatState.blockStyle) {

@@ -31,6 +31,11 @@ public protocol EditorEngine: AnyObject {
     /// The formatting of the current selection, for driving toolbar state.
     var formatState: FormatState { get }
 
+    /// The formatting this editor keeps every document to. Anything outside
+    /// it is stripped from documents on the way in, and commands for it do
+    /// nothing. Narrowing it on a live editor strips the current document.
+    var allowedFormatting: RichTextFormatting { get set }
+
     /// Applies a formatting intent.
     func apply(_ command: FormatCommand)
 

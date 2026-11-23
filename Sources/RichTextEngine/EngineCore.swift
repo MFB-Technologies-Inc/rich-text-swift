@@ -78,7 +78,8 @@ enum EngineCore {
 
     /// Everything the engine requires of a document that arrives from outside
     /// the command layer: LF block separators, no explicit black `textColor`,
-    /// and a block role on every character. Text with no role gets
+    /// nothing the editor's `allowed` formatting excludes, and a block role on
+    /// every character. Text with no role gets
     /// `missingBlockStyle`: a paragraph, which is what the encoder writes for
     /// it, unless the caller knows better. Every path into
     /// `UIKitEditorEngine.semanticText` that did not come from `EngineCore` itself (the public `text` setter, the
@@ -92,11 +93,12 @@ enum EngineCore {
     static func normalizedIngest(
         _ text: AttributedString,
         selection: TextSelection,
-        missingBlockStyle: BlockStyle = .paragraph
+        missingBlockStyle: BlockStyle = .paragraph,
+        allowing allowed: RichTextFormatting = .all
     ) -> (text: AttributedString, selection: TextSelection)? {
         let hasCR = LineEndings.needsNormalizing(text.unicodeScalars)
         let filled = fillingMissingBlockStyle(LineEndings.normalized(text), with: missingBlockStyle)
-        let normalized = bareSeparators(in: normalizingDefaultColor(filled))
+        let normalized = bareSeparators(in: strippingDisallowed(normalizingDefaultColor(filled), allowing: allowed))
         guard normalized != text else { return nil }
         let mappedSelection = hasCR ? LineEndings.selection(selection, mappedThrough: text) : selection
         return (normalized, mappedSelection)
