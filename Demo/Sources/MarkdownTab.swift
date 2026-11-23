@@ -11,10 +11,9 @@ import SwiftUI
 /// the two round-trip checks worth watching while editing.
 ///
 /// Every tab shows the editor's one document, which may hold formatting
-/// Markdown can't (the default sample has underline and color). Then
-/// `decode(encode(doc)) == doc` can't hold by design, so that check reads
-/// "Not applicable" with the reason rather than failing: a red mark here
-/// always means a real codec bug.
+/// Markdown can't (the default sample has underline and color), so the
+/// first check can fail by design. The footer says which formatting is
+/// responsible, so a failure there doesn't read as a codec bug.
 struct MarkdownTab: View {
     let document: AttributedString
 
@@ -25,14 +24,10 @@ struct MarkdownTab: View {
         NavigationStack {
             List {
                 Section {
-                    if unsupported.isEmpty {
-                        CheckRow(
-                            title: "decode(encode(doc)) == doc",
-                            passes: decoded == document
-                        )
-                    } else {
-                        NotApplicableRow(title: "decode(encode(doc)) == doc")
-                    }
+                    CheckRow(
+                        title: "decode(encode(doc)) == doc",
+                        passes: decoded == document
+                    )
                     CheckRow(
                         title: "encode(decode(markdown)) == markdown",
                         passes: RichTextMarkdown.encode(decoded) == markdown
@@ -40,13 +35,7 @@ struct MarkdownTab: View {
                 } header: {
                     Text("Round trip")
                 } footer: {
-                    if !unsupported.isEmpty {
-                        Text(
-                            "This document uses \(ListFormatter.localizedString(byJoining: unsupported)), " +
-                                "which Markdown can't hold, so the first check doesn't apply. " +
-                                "Remove that formatting, or load a Markdown sample, to see it pass."
-                        )
-                    }
+                    Text(Self.roundTripNote(unsupported: unsupported))
                 }
                 Section {
                     Text(markdown.isEmpty ? "(empty)" : markdown)
@@ -70,6 +59,17 @@ struct MarkdownTab: View {
         }
     }
 
+    /// Why the first check may fail, naming what this document holds that
+    /// Markdown can't, if anything.
+    static func roundTripNote(unsupported: [String]) -> String {
+        let general = "Underline, text color and empty paragraphs have no Markdown form, " +
+            "so a document using them doesn't round trip: they are dropped on save."
+        guard !unsupported.isEmpty else {
+            return general
+        }
+        return general + " This document uses \(ListFormatter.localizedString(byJoining: unsupported))."
+    }
+
     /// What `document` holds that `RichTextMarkdown` can't save, as phrases
     /// for the footer. Black counts as no color, as everywhere in the editor.
     static func unsupportedFormatting(in document: AttributedString) -> [String] {
@@ -85,23 +85,5 @@ struct MarkdownTab: View {
             found.append("empty paragraphs")
         }
         return found
-    }
-}
-
-/// A check that can't hold for the current document by design, shown
-/// neutrally so it doesn't read as a failure.
-private struct NotApplicableRow: View {
-    let title: String
-
-    var body: some View {
-        LabeledContent {
-            Text("Not applicable")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        } label: {
-            Text(title)
-                .font(.system(.footnote, design: .monospaced))
-                .foregroundStyle(.secondary)
-        }
     }
 }
