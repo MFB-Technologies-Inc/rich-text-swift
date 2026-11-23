@@ -18,27 +18,23 @@ struct RichTextControlPresetsTests {
 
     @Test func defaultContainsNoHeadingControl() {
         let hasHeading = [RichTextControl].default.contains { control in
-            if case .heading = control {
-                return true
+            switch control {
+            case .heading, .paragraphStyleAndColor: true
+            default: false
             }
-            return false
         }
         #expect(hasHeading == false)
     }
 
-    @Test func htmlStartsWithDefaultAndAddsExactlyTheThreeHeadingLevels() {
-        let html = [RichTextControl].html
-        let defaults = [RichTextControl].default
-        #expect(Array(html.prefix(defaults.count)) == defaults)
-        #expect(Array(html.dropFirst(defaults.count)) == [
-            .heading(.h1), .heading(.h2), .heading(.h3),
+    @Test func htmlIsInlineAndListControlsThenTheParagraphStyleAndColorPanel() {
+        #expect([RichTextControl].html == [
+            .bold, .italic, .underline, .strikethrough,
+            .unorderedList, .orderedList, .paragraphStyleAndColor,
         ])
     }
 
-    @Test func markdownIsHtmlWithoutUnderlineAndTextColorInTheSameOrder() {
-        #expect([RichTextControl].markdown == [RichTextControl].html.filter { control in
-            control != .underline && control != .textColor
-        })
+    @Test func markdownIsHtmlWithoutUnderlineInTheSameOrder() {
+        #expect([RichTextControl].markdown == [RichTextControl].html.filter { $0 != .underline })
     }
 
     @Test func noPresetContainsDuplicates() {
