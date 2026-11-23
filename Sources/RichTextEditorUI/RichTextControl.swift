@@ -77,6 +77,9 @@ extension RichTextControl {
         case .unorderedList: .bulletedLists
         case .orderedList: .numberedLists
         case .heading: .headings
+        // The panel holds rows of several kinds, so it is always shown; the
+        // engine ignores any row's command the profile doesn't allow.
+        case .paragraphStyleAndColor: []
         }
     }
 

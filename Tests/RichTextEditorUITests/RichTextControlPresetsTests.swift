@@ -33,10 +33,8 @@ struct RichTextControlPresetsTests {
         ])
     }
 
-    @Test func markdownIsHtmlWithoutUnderlineAndTextColorInTheSameOrder() {
-        #expect([RichTextControl].markdown == [RichTextControl].html.filter { control in
-            control != .underline && control != .textColor
-        })
+    @Test func markdownIsHtmlWithoutUnderlineInTheSameOrder() {
+        #expect([RichTextControl].markdown == [RichTextControl].html.filter { $0 != .underline })
     }
 
     @Test func noPresetContainsDuplicates() {

@@ -22,8 +22,9 @@ extension [RichTextControl] {
         [.bold, .italic, .underline, .strikethrough, .unorderedList, .orderedList, .paragraphStyleAndColor]
     }
 
-    /// Every control Markdown can represent: `html` without underline and
-    /// text color, which have no Markdown form. Use it when you save
+    /// Every control Markdown can represent: `html` without underline, which
+    /// has no Markdown form. With `allowedFormatting: .markdown` the
+    /// `.paragraphStyleAndColor` panel also leaves out its Color row. Use it when you save
     /// documents with `RichTextMarkdown`. Like `html`, it only ever holds controls that
     /// survive a round trip, so a user can't make formatting that is lost on
     /// save.
@@ -32,6 +33,6 @@ extension [RichTextControl] {
     /// way, such as a rich paste, still shows in the editor and is dropped
     /// on save.
     public static var markdown: [RichTextControl] {
-        [.bold, .italic, .strikethrough, .unorderedList, .orderedList, .heading(.h1), .heading(.h2), .heading(.h3)]
+        [.bold, .italic, .strikethrough, .unorderedList, .orderedList, .paragraphStyleAndColor]
     }
 }
