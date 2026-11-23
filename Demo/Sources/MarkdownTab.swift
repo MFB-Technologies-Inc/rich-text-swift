@@ -11,9 +11,10 @@ import SwiftUI
 /// the two round-trip checks worth watching while editing.
 ///
 /// Every tab shows the editor's one document, which may hold formatting
-/// Markdown can't (the default sample has underline and color), so the
-/// first check can fail by design. The footer says which formatting is
-/// responsible, so a failure there doesn't read as a codec bug.
+/// Markdown can't (the default sample has underline and color). Losing that
+/// on save is expected, so the first check compares against the document
+/// without it, and the footer says what was left out. A red mark means a
+/// real codec bug.
 struct MarkdownTab: View {
     let document: AttributedString
 
@@ -26,7 +27,7 @@ struct MarkdownTab: View {
                 Section {
                     CheckRow(
                         title: "decode(encode(doc)) == doc",
-                        passes: decoded == document
+                        passes: decoded == Self.markdownForm(of: document)
                     )
                     CheckRow(
                         title: "encode(decode(markdown)) == markdown",
@@ -62,12 +63,43 @@ struct MarkdownTab: View {
     /// Why the first check may fail, naming what this document holds that
     /// Markdown can't, if anything.
     static func roundTripNote(unsupported: [String]) -> String {
-        let general = "Underline, text color and empty paragraphs have no Markdown form, " +
-            "so a document using them doesn't round trip: they are dropped on save."
         guard !unsupported.isEmpty else {
-            return general
+            return "Underline, text color and empty paragraphs have no Markdown form, " +
+                "so the first check leaves them out."
         }
-        return general + " This document uses \(ListFormatter.localizedString(byJoining: unsupported))."
+        let list = ListFormatter.localizedString(byJoining: unsupported)
+        return "Matches apart from this document's \(list), which Markdown can't hold. " +
+            "They are dropped on save, as expected."
+    }
+
+    /// `document` as Markdown can hold it: without underline or text color,
+    /// and without empty paragraphs. What `decode(encode(document))` should
+    /// equal.
+    static func markdownForm(of document: AttributedString) -> AttributedString {
+        var stripped = document
+        for run in document.runs {
+            stripped[run.range].underline = nil
+            stripped[run.range].textColor = nil
+        }
+        let blocks = stripped.characters.split(separator: "\n", omittingEmptySubsequences: false)
+        guard blocks.contains(where: \.isEmpty) else {
+            return stripped
+        }
+        // Rebuilt from the non-empty blocks with plain separators, the way
+        // the decoder joins blocks.
+        var result = AttributedString()
+        var start = stripped.startIndex
+        for block in blocks {
+            let end = stripped.index(start, offsetByCharacters: block.count)
+            if !block.isEmpty {
+                if !result.characters.isEmpty {
+                    result += AttributedString("\n")
+                }
+                result += stripped[start ..< end]
+            }
+            start = end < stripped.endIndex ? stripped.index(afterCharacter: end) : end
+        }
+        return result
     }
 
     /// What `document` holds that `RichTextMarkdown` can't save, as phrases
